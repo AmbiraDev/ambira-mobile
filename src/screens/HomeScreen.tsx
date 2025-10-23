@@ -1,14 +1,16 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '@/theme/colors';
 
-export function HomeScreen(): JSX.Element {
+export function HomeScreen(): TSX.Element {
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Ambira Mobile</Text>
-      <Text style={styles.body}>
-        Start building the productivity experience by replacing this placeholder screen.
-      </Text>
+      <Image
+        source={require('../../assets/logo.png')}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+      <Text style={styles.title}>Ambira</Text>
     </View>
   );
 }
@@ -16,20 +18,19 @@ export function HomeScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.brandPrimary,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
   },
-  heading: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginBottom: 12,
+  logo: {
+    width: 160,
+    height: 160,
+    marginBottom: -30,
   },
-  body: {
-    textAlign: 'center',
-    color: colors.textSecondary,
-    fontSize: 16,
-    lineHeight: 22,
+  title: {
+    color: colors.brandOnPrimary,
+    fontSize: 54,
+    fontFamily: 'Satoshi-Black',
+    fontWeight: '900',
   },
 });

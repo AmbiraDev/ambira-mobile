@@ -10,7 +10,7 @@ import { colors } from '@/theme/colors';
 export default function App(): JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style="light" backgroundColor={colors.brandPrimary} />
       <HomeScreen />
     </SafeAreaView>
   );
@@ -19,6 +19,6 @@ export default function App(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.brandPrimary,
   },
 });
