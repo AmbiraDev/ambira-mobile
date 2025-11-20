@@ -1,7 +1,11 @@
 import type React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export function WelcomeScreen(): React.JSX.Element {
+type WelcomeScreenProps = {
+  onSignUp?: () => void;
+};
+
+export function WelcomeScreen({ onSignUp }: WelcomeScreenProps): React.JSX.Element {
   return (
     <View style={styles.container}>
       <Image
@@ -12,7 +16,7 @@ export function WelcomeScreen(): React.JSX.Element {
       <Text style={styles.title}>
         Make productivity <Text style={styles.highlight}>social.</Text>
       </Text>
-      <TouchableOpacity style={styles.ctaButton}>
+      <TouchableOpacity style={styles.ctaButton} onPress={onSignUp}>
         <Text style={styles.ctaLabel}>Sign up free</Text>
       </TouchableOpacity>
       <Text style={styles.loginRow}>
@@ -39,10 +43,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '800',
     color: '#0F172A',
+    fontFamily: 'DM Sans',
     marginBottom: 24,
   },
   highlight: {
     color: '#305CDE',
+    fontFamily: 'DM Sans',
   },
   ctaButton: {
     marginTop: 12,
@@ -56,19 +62,23 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '800',
     fontSize: 14,
+    fontFamily: 'DM Sans',
   },
   loginRow: {
     marginTop: 8,
     fontSize: 13,
     fontWeight: '500',
     color: '#475569',
+    fontFamily: 'DM Sans',
   },
   loginPrompt: {
     color: '#475569',
     fontWeight: '500',
+    fontFamily: 'DM Sans',
   },
   loginLink: {
     color: '#305CDE',
     fontWeight: '700',
+    fontFamily: 'DM Sans',
   },
 });

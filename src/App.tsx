@@ -1,18 +1,31 @@
-import type React from 'react';
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, StyleSheet } from 'react-native';
 
+import { EmailSignUpScreen } from '@/screens/EmailSignUpScreen';
+import { SignUpScreen } from '@/screens/SignUpScreen';
 import { WelcomeScreen } from '@/screens/WelcomeScreen';
-import { colors } from '@/theme/colors';
 
 /**
  * Root component that wires up global providers before rendering the first screen.
  */
 export default function App(): React.JSX.Element {
+  const [screen, setScreen] = React.useState<'welcome' | 'signup' | 'email'>('welcome');
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" backgroundColor="#FFFFFF" />
-      <WelcomeScreen />
+      {screen === 'welcome' ? (
+        <WelcomeScreen onSignUp={() => setScreen('signup')} />
+      ) : screen === 'signup' ? (
+        <SignUpScreen
+          onLogin={() => setScreen('welcome')}
+          onBack={() => setScreen('welcome')}
+          onEmailSignUp={() => setScreen('email')}
+        />
+      ) : (
+        <EmailSignUpScreen onBack={() => setScreen('signup')} />
+      )}
     </SafeAreaView>
   );
 }
