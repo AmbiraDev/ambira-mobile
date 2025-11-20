@@ -13,6 +13,12 @@ export const colors = {
   cardBorder: '#E2E8F0',
   backgroundAlt: '#F8FAFC',
   pill: '#E8EDFF',
+  inputBorder: '#CBD5E1',
+  placeholder: '#A8B2C3',
+  mutedAlt: '#94A3B8',
+  label: '#1F2937',
+  primaryStrong: '#005CC8',
+  white: '#FFFFFF',
 } as const;
 
 export type AppColor = keyof typeof colors;

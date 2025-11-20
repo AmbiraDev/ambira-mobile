@@ -9,13 +9,21 @@ import {
   View,
 } from 'react-native';
 
+import { colors } from '@/theme/colors';
+import blueOnWhite from '../../public/blue-on-white.png';
+
 type EmailSignUpScreenProps = {
   onBack?: () => void;
 };
 
 export function EmailSignUpScreen({ onBack }: EmailSignUpScreenProps): React.JSX.Element {
   return (
-    <ScrollView contentContainerStyle={styles.container} bounces={false} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      bounces={false}
+      showsVerticalScrollIndicator={false}
+    >
+      <Image source={blueOnWhite} style={styles.logo} resizeMode="contain" />
       <Text style={styles.heading}>Create Your Account</Text>
       <Text style={styles.subhead}>Join Ambira and start tracking your productivity</Text>
 
@@ -28,12 +36,20 @@ export function EmailSignUpScreen({ onBack }: EmailSignUpScreenProps): React.JSX
 
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Full Name</Text>
-          <TextInput style={styles.input} placeholder="Enter your full name" placeholderTextColor="#A8B2C3" />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your full name"
+            placeholderTextColor={colors.placeholder}
+          />
         </View>
 
         <View style={styles.fieldGroup}>
           <Text style={styles.label}>Username</Text>
-          <TextInput style={styles.input} placeholder="Choose a username" placeholderTextColor="#A8B2C3" />
+          <TextInput
+            style={styles.input}
+            placeholder="Choose a username"
+            placeholderTextColor={colors.placeholder}
+          />
         </View>
 
         <View style={styles.fieldGroup}>
@@ -43,7 +59,7 @@ export function EmailSignUpScreen({ onBack }: EmailSignUpScreenProps): React.JSX
             placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
-            placeholderTextColor="#A8B2C3"
+            placeholderTextColor={colors.placeholder}
           />
         </View>
 
@@ -53,7 +69,7 @@ export function EmailSignUpScreen({ onBack }: EmailSignUpScreenProps): React.JSX
             style={styles.input}
             placeholder="Create a password"
             secureTextEntry
-            placeholderTextColor="#A8B2C3"
+            placeholderTextColor={colors.placeholder}
           />
         </View>
 
@@ -63,7 +79,7 @@ export function EmailSignUpScreen({ onBack }: EmailSignUpScreenProps): React.JSX
             style={styles.input}
             placeholder="Confirm your password"
             secureTextEntry
-            placeholderTextColor="#A8B2C3"
+            placeholderTextColor={colors.placeholder}
           />
         </View>
 
@@ -78,7 +94,7 @@ export function EmailSignUpScreen({ onBack }: EmailSignUpScreenProps): React.JSX
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.card,
     alignItems: 'center',
     paddingTop: 24,
     paddingBottom: 24,
@@ -87,18 +103,19 @@ const styles = StyleSheet.create({
   logo: {
     width: 140,
     height: 140,
+    marginBottom: 4,
   },
   heading: {
     marginTop: 12,
     fontSize: 26,
     fontWeight: '800',
-    color: '#0F172A',
+    color: colors.textDark,
     fontFamily: 'DM Sans',
   },
   subhead: {
     marginTop: 6,
     fontSize: 16,
-    color: '#475569',
+    color: colors.textMuted,
     textAlign: 'center',
     fontFamily: 'DM Sans',
   },
@@ -111,7 +128,7 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 24,
-    color: '#94A3B8',
+    color: colors.mutedAlt,
     fontFamily: 'DM Sans',
   },
   fieldGroup: {
@@ -120,31 +137,31 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1F2937',
+    color: colors.label,
     marginBottom: 6,
     fontFamily: 'DM Sans',
   },
   input: {
     height: 48,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: colors.inputBorder,
     borderRadius: 10,
     paddingHorizontal: 12,
     fontSize: 16,
-    color: '#0F172A',
-    backgroundColor: '#FFFFFF',
+    color: colors.textDark,
+    backgroundColor: colors.white,
     fontFamily: 'DM Sans',
   },
   submitButton: {
     marginTop: 24,
     height: 52,
     borderRadius: 12,
-    backgroundColor: '#005CC8',
+    backgroundColor: colors.primaryStrong,
     alignItems: 'center',
     justifyContent: 'center',
   },
   submitLabel: {
-    color: '#FFFFFF',
+    color: colors.brandOnPrimary,
     fontSize: 16,
     fontWeight: '800',
     fontFamily: 'DM Sans',

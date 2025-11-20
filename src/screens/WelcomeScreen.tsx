@@ -1,6 +1,9 @@
 import type React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+import { colors } from '@/theme/colors';
+import blueOnWhite from '../../public/blue-on-white.png';
+
 type WelcomeScreenProps = {
   onSignUp?: () => void;
   onLogin?: () => void;
@@ -9,11 +12,7 @@ type WelcomeScreenProps = {
 export function WelcomeScreen({ onSignUp, onLogin }: WelcomeScreenProps): React.JSX.Element {
   return (
     <View style={styles.container}>
-      <Image
-        source={require('../../public/blue-on-white.png')}
-        style={styles.logo}
-        resizeMode="contain"
-      />
+      <Image source={blueOnWhite} style={styles.logo} resizeMode="contain" />
       <Text style={styles.title}>
         Make productivity <Text style={styles.highlight}>social.</Text>
       </Text>
@@ -33,7 +32,7 @@ export function WelcomeScreen({ onSignUp, onLogin }: WelcomeScreenProps): React.
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -45,24 +44,24 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#0F172A',
+    color: colors.textDark,
     fontFamily: 'DM Sans',
     marginBottom: 24,
   },
   highlight: {
-    color: '#305CDE',
+    color: colors.brandPrimary,
     fontFamily: 'DM Sans',
   },
   ctaButton: {
     marginTop: 12,
     paddingVertical: 12,
     paddingHorizontal: 20,
-    backgroundColor: '#305CDE',
+    backgroundColor: colors.brandPrimary,
     borderRadius: 4,
     marginBottom: 12,
   },
   ctaLabel: {
-    color: '#FFFFFF',
+    color: colors.brandOnPrimary,
     fontWeight: '800',
     fontSize: 14,
     fontFamily: 'DM Sans',
@@ -71,16 +70,16 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 13,
     fontWeight: '500',
-    color: '#475569',
+    color: colors.textMuted,
     fontFamily: 'DM Sans',
   },
   loginPrompt: {
-    color: '#475569',
+    color: colors.textMuted,
     fontWeight: '500',
     fontFamily: 'DM Sans',
   },
   loginLink: {
-    color: '#305CDE',
+    color: colors.brandPrimary,
     fontWeight: '700',
     fontFamily: 'DM Sans',
   },

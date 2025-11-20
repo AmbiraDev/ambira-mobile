@@ -9,18 +9,22 @@ import {
   View,
 } from 'react-native';
 
+import { colors } from '@/theme/colors';
+import blueOnWhite from '../../public/blue-on-white.png';
+import googleIcon from '../../public/google.png';
+
 type LogInScreenProps = {
   onBack?: () => void;
 };
 
 export function LogInScreen({ onBack }: LogInScreenProps): React.JSX.Element {
   return (
-    <ScrollView contentContainerStyle={styles.container} bounces={false} showsVerticalScrollIndicator={false}>
-      <Image
-        source={require('../../public/blue-on-white.png')}
-        style={styles.logo}
-        resizeMode="contain"
-      />
+    <ScrollView
+      contentContainerStyle={styles.container}
+      bounces={false}
+      showsVerticalScrollIndicator={false}
+    >
+      <Image source={blueOnWhite} style={styles.logo} resizeMode="contain" />
       <Text style={styles.heading}>Welcome Back</Text>
       <Text style={styles.subhead}>Sign in to your account</Text>
 
@@ -33,7 +37,7 @@ export function LogInScreen({ onBack }: LogInScreenProps): React.JSX.Element {
 
         <TouchableOpacity style={styles.googleButton}>
           <View style={styles.googleContent}>
-            <Image source={require('../../public/google.png')} style={styles.googleIcon} />
+            <Image source={googleIcon} style={styles.googleIcon} />
             <Text style={styles.googleLabel}>Continue with Google</Text>
           </View>
         </TouchableOpacity>
@@ -76,7 +80,7 @@ export function LogInScreen({ onBack }: LogInScreenProps): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.card,
     alignItems: 'center',
     paddingTop: 24,
     paddingBottom: 24,
@@ -91,14 +95,14 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: '800',
     fontFamily: 'DM Sans',
-    color: '#0F172A',
+    color: colors.textDark,
   },
   subhead: {
     marginTop: 6,
     fontSize: 16,
     fontWeight: '500',
     fontFamily: 'DM Sans',
-    color: '#475569',
+    color: colors.textMuted,
     textAlign: 'center',
   },
   form: {
@@ -110,15 +114,15 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 24,
-    color: '#94A3B8',
+    color: colors.mutedAlt,
     fontFamily: 'DM Sans',
   },
   googleButton: {
     width: '100%',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
-    backgroundColor: '#FFFFFF',
+    borderColor: colors.inputBorder,
+    backgroundColor: colors.white,
     paddingVertical: 14,
     paddingHorizontal: 14,
   },
@@ -136,7 +140,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     fontFamily: 'DM Sans',
-    color: '#0F172A',
+    color: colors.textDark,
   },
   dividerRow: {
     flexDirection: 'row',
@@ -149,10 +153,10 @@ const styles = StyleSheet.create({
   divider: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: colors.cardBorder,
   },
   dividerText: {
-    color: '#94A3B8',
+    color: colors.mutedAlt,
     fontSize: 13,
     fontWeight: '700',
     fontFamily: 'DM Sans',
@@ -164,30 +168,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     fontFamily: 'DM Sans',
-    color: '#1F2937',
+    color: colors.label,
     marginBottom: 6,
   },
   input: {
     height: 48,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: colors.inputBorder,
     borderRadius: 10,
     paddingHorizontal: 12,
     fontSize: 16,
     fontFamily: 'DM Sans',
-    color: '#0F172A',
-    backgroundColor: '#FFFFFF',
+    color: colors.textDark,
+    backgroundColor: colors.white,
   },
   submitButton: {
     marginTop: 24,
     height: 52,
     borderRadius: 12,
-    backgroundColor: '#005CC8',
+    backgroundColor: colors.primaryStrong,
     alignItems: 'center',
     justifyContent: 'center',
   },
   submitLabel: {
-    color: '#FFFFFF',
+    color: colors.brandOnPrimary,
     fontSize: 16,
     fontWeight: '800',
     fontFamily: 'DM Sans',
