@@ -25,15 +25,13 @@ export function SignUpScreen({
       <View style={styles.loginRow}>
         <Text style={styles.loginPrompt}>Already a Member? </Text>
         <Text style={styles.loginLink} onPress={onLogin ?? onBack}>
-          Log In
+          Log in
         </Text>
       </View>
 
       <TouchableOpacity style={styles.googleButton}>
         <View style={styles.googleContent}>
-          <View style={styles.googleIcon}>
-            <Text style={styles.googleLetter}>G</Text>
-          </View>
+          <Image source={require('../../public/google.png')} style={styles.googleIcon} />
           <Text style={styles.googleLabel}>Sign Up With Google</Text>
         </View>
       </TouchableOpacity>
@@ -108,20 +106,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   googleIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  googleLetter: {
-    fontWeight: '900',
-    color: '#DB4437',
-    fontSize: 14,
-    fontFamily: 'DM Sans',
+    width: 22,
+    height: 22,
   },
   googleLabel: {
     fontSize: 16,

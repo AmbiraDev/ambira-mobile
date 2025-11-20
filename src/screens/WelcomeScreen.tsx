@@ -3,9 +3,10 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type WelcomeScreenProps = {
   onSignUp?: () => void;
+  onLogin?: () => void;
 };
 
-export function WelcomeScreen({ onSignUp }: WelcomeScreenProps): React.JSX.Element {
+export function WelcomeScreen({ onSignUp, onLogin }: WelcomeScreenProps): React.JSX.Element {
   return (
     <View style={styles.container}>
       <Image
@@ -21,7 +22,9 @@ export function WelcomeScreen({ onSignUp }: WelcomeScreenProps): React.JSX.Eleme
       </TouchableOpacity>
       <Text style={styles.loginRow}>
         <Text style={styles.loginPrompt}>Already a member? </Text>
-        <Text style={styles.loginLink}>Log in</Text>
+        <Text style={styles.loginLink} onPress={onLogin}>
+          Log in
+        </Text>
       </Text>
     </View>
   );
