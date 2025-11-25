@@ -9,12 +9,14 @@ type SignUpScreenProps = {
   onLogin?: () => void;
   onBack?: () => void;
   onEmailSignUp?: () => void;
+  onAuthComplete?: () => void;
 };
 
 export function SignUpScreen({
   onLogin,
   onBack,
   onEmailSignUp,
+  onAuthComplete,
 }: SignUpScreenProps): React.JSX.Element {
   return (
     <View style={styles.container}>
@@ -29,7 +31,7 @@ export function SignUpScreen({
         </Text>
       </View>
 
-      <TouchableOpacity style={styles.googleButton}>
+      <TouchableOpacity style={styles.googleButton} onPress={onAuthComplete}>
         <View style={styles.googleContent}>
           <Image source={googleIcon} style={styles.googleIcon} />
           <Text style={styles.googleLabel}>Sign Up With Google</Text>

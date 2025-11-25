@@ -14,9 +14,10 @@ import blueOnWhite from '../../public/blue-on-white.png';
 
 type EmailSignUpScreenProps = {
   onBack?: () => void;
+  onSubmit?: () => void;
 };
 
-export function EmailSignUpScreen({ onBack }: EmailSignUpScreenProps): React.JSX.Element {
+export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps): React.JSX.Element {
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -83,7 +84,7 @@ export function EmailSignUpScreen({ onBack }: EmailSignUpScreenProps): React.JSX
           />
         </View>
 
-        <TouchableOpacity style={styles.submitButton}>
+        <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
           <Text style={styles.submitLabel}>Create account</Text>
         </TouchableOpacity>
       </View>

@@ -19,6 +19,11 @@ export const colors = {
   label: '#1F2937',
   primaryStrong: '#005CC8',
   white: '#FFFFFF',
+  shadow: '#0F172A',
+  overlay: 'rgba(0,0,0,0.4)',
+  skeleton: '#E5E7EB',
+  visibilityPill: '#E3EDFF',
+  error: '#DC2626',
 } as const;
 
 export type AppColor = keyof typeof colors;
