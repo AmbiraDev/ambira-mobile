@@ -9,6 +9,7 @@ type MobileHeaderProps = {
   onBack?: () => void;
   rightIcon?: string;
   onRightPress?: () => void;
+  leftElement?: React.ReactNode;
 };
 
 export function MobileHeader({
@@ -17,6 +18,7 @@ export function MobileHeader({
   onBack,
   rightIcon,
   onRightPress,
+  leftElement,
 }: MobileHeaderProps): React.JSX.Element {
   return (
     <View style={styles.container}>
@@ -24,6 +26,8 @@ export function MobileHeader({
         <TouchableOpacity onPress={onBack} hitSlop={12}>
           <Text style={styles.back}>{'\u2039'}</Text>
         </TouchableOpacity>
+      ) : leftElement ? (
+        <View style={styles.leftSlot}>{leftElement}</View>
       ) : (
         <View style={styles.spacer} />
       )}
@@ -59,6 +63,11 @@ const styles = StyleSheet.create({
   },
   spacer: {
     width: 26,
+  },
+  leftSlot: {
+    minWidth: 26,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
   },
   back: {
     fontSize: 24,

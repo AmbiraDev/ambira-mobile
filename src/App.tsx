@@ -1,6 +1,7 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 import { BottomNavigation, type BottomTabKey } from '@/components/BottomNavigation';
 import {
@@ -81,78 +82,79 @@ export default function App(): React.JSX.Element {
     setViewingSession(session);
   };
 
-  if (!user) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="dark" backgroundColor="#FFFFFF" />
-        {authStage === 'welcome' ? (
-          <WelcomeScreen onSignUp={() => setAuthStage('signup')} onLogin={() => setAuthStage('login')} />
-        ) : authStage === 'signup' ? (
-          <SignUpScreen
-            onLogin={() => setAuthStage('login')}
-            onBack={() => setAuthStage('welcome')}
-            onEmailSignUp={() => setAuthStage('email')}
-            onAuthComplete={handleAuthComplete}
-          />
-        ) : authStage === 'email' ? (
-          <EmailSignUpScreen onBack={() => setAuthStage('signup')} onSubmit={handleAuthComplete} />
-        ) : (
-          <LogInScreen onBack={() => setAuthStage('welcome')} onAuthComplete={handleAuthComplete} />
-        )}
-      </SafeAreaView>
-    );
-  }
-
   const currentProfile = profileUser ?? seedUser;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" backgroundColor="#FFFFFF" />
-      <View style={styles.content}>
-        {viewingSession ? (
-          <SessionDetailScreen
-            session={viewingSession}
-            onBack={() => setViewingSession(null)}
-            onNavigateHome={() => {
-              setViewingSession(null);
-              setActiveTab('home');
-            }}
-          />
-        ) : activeTab === 'home' ? (
-          <HomeScreen
-            currentUser={seedUser}
-            sessions={sessions}
-            followingIds={followingIds}
-            onOpenSession={openSession}
-            onOpenProfile={openProfile}
-            onOpenNotifications={() => setActiveTab('notifications')}
-          />
-        ) : activeTab === 'timer' ? (
-          <TimerScreen onSaveSession={handleSaveSession} />
-        ) : activeTab === 'profile' ? (
-          <ProfileScreen user={currentProfile} sessions={sessions} onSelectSession={openSession} />
-        ) : (
-          <NotificationsScreen />
-        )}
-        <BottomNavigation
-          active={activeTab}
-          onChange={(next) => {
-            setViewingSession(null);
-            setActiveTab(next);
-            if (next === 'profile') setProfileUser(seedUser);
-          }}
-        />
-      </View>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      {user ? (
+        <SafeAreaView style={styles.container} edges={['top']}>
+          <StatusBar style="dark" backgroundColor={colors.card} />
+          <View style={styles.content}>
+            {viewingSession ? (
+              <SessionDetailScreen
+                session={viewingSession}
+                onBack={() => setViewingSession(null)}
+                onNavigateHome={() => {
+                  setViewingSession(null);
+                  setActiveTab('home');
+                }}
+              />
+            ) : activeTab === 'home' ? (
+              <HomeScreen
+                currentUser={seedUser}
+                sessions={sessions}
+                followingIds={followingIds}
+                onOpenSession={openSession}
+                onOpenProfile={openProfile}
+                onOpenNotifications={() => setActiveTab('notifications')}
+              />
+            ) : activeTab === 'timer' ? (
+              <TimerScreen onSaveSession={handleSaveSession} />
+            ) : activeTab === 'profile' ? (
+              <ProfileScreen user={currentProfile} sessions={sessions} onSelectSession={openSession} />
+            ) : (
+              <NotificationsScreen />
+            )}
+            <BottomNavigation
+              active={activeTab}
+              onChange={(next) => {
+                setViewingSession(null);
+                setActiveTab(next);
+                if (next === 'profile') setProfileUser(seedUser);
+              }}
+            />
+          </View>
+        </SafeAreaView>
+      ) : (
+        <SafeAreaView style={styles.container} edges={['top']}>
+          <StatusBar style="dark" backgroundColor={colors.card} />
+          {authStage === 'welcome' ? (
+            <WelcomeScreen onSignUp={() => setAuthStage('signup')} onLogin={() => setAuthStage('login')} />
+          ) : authStage === 'signup' ? (
+            <SignUpScreen
+              onLogin={() => setAuthStage('login')}
+              onBack={() => setAuthStage('welcome')}
+              onEmailSignUp={() => setAuthStage('email')}
+              onAuthComplete={handleAuthComplete}
+            />
+          ) : authStage === 'email' ? (
+            <EmailSignUpScreen onBack={() => setAuthStage('signup')} onSubmit={handleAuthComplete} />
+          ) : (
+            <LogInScreen onBack={() => setAuthStage('welcome')} onAuthComplete={handleAuthComplete} />
+          )}
+        </SafeAreaView>
+      )}
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundAlt,
+    backgroundColor: colors.card,
   },
   content: {
     flex: 1,
+    backgroundColor: colors.card,
   },
 });

@@ -11,7 +11,6 @@ import {
 import { MobileHeader } from '@/components/MobileHeader';
 import { SessionCard } from '@/components/SessionCard';
 import { SessionSkeleton } from '@/components/Skeletons';
-import { StreakCard } from '@/components/StreakCard';
 import { activityBreakdown, getActivityById, getUserById } from '@/data/mockData';
 import type { Session, UserProfile } from '@/types/models';
 import { colors } from '@/theme/colors';
@@ -122,7 +121,17 @@ export function HomeScreen({
 
   return (
     <View style={styles.page}>
-      <MobileHeader title="Home" rightIcon="🔔" onRightPress={onOpenNotifications} />
+      <MobileHeader
+        title="Home"
+        rightIcon="🔔"
+        onRightPress={onOpenNotifications}
+        leftElement={
+          <View style={styles.streakChip}>
+            <Text style={styles.streakIcon}>🔥</Text>
+            <Text style={styles.streakText}>{currentUser.streakDays}</Text>
+          </View>
+        }
+      />
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -153,16 +162,11 @@ export function HomeScreen({
               </Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.filterHint}>Default: Following</Text>
+
         </View>
         <View style={[styles.layout, isWide && styles.layoutWide]}>
           {isWide ? renderSidebar() : null}
           <View style={styles.mainColumn}>
-            {currentUser ? (
-              <View style={styles.streakBlock}>
-                <StreakCard current={currentUser.streakDays} best={currentUser.bestStreak} />
-              </View>
-            ) : null}
             {renderFeed()}
             <View style={styles.bottomSpace} />
           </View>
@@ -176,7 +180,7 @@ export function HomeScreen({
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    backgroundColor: colors.backgroundAlt,
+    backgroundColor: colors.card,
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -203,7 +207,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   filterBar: {
-    backgroundColor: colors.backgroundAlt,
+    backgroundColor: colors.card,
     paddingVertical: 10,
   },
   filterBarWide: {
@@ -241,10 +245,6 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: 'center',
     fontFamily: 'DM Sans',
-  },
-  streakBlock: {
-    marginTop: 12,
-    marginBottom: 12,
   },
   cardStack: {
     gap: 12,
@@ -347,5 +347,19 @@ const styles = StyleSheet.create({
   },
   bottomSpace: {
     height: 96,
+  },
+  streakChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  streakIcon: {
+    fontSize: 16,
+  },
+  streakText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: colors.textDark,
+    fontFamily: 'DM Sans',
   },
 });

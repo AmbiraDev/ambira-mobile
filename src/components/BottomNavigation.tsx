@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/theme/colors';
 
@@ -12,14 +13,16 @@ type BottomNavigationProps = {
 
 const tabs: { key: BottomTabKey; label: string; icon: string }[] = [
   { key: 'home', label: 'Home', icon: '🏠' },
-  { key: 'timer', label: 'Timer', icon: '⏱' },
-  { key: 'profile', label: 'You', icon: '😊' },
-  { key: 'notifications', label: 'Alerts', icon: '🔔' },
+  { key: 'timer', label: 'Record', icon: '⏱' },
+  { key: 'profile', label: 'Profile', icon: '😊' },
 ];
 
 export function BottomNavigation({ active, onChange }: BottomNavigationProps): React.JSX.Element {
+  const insets = useSafeAreaInsets();
+  const paddingBottom = Math.max(12, insets.bottom + 10);
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom }]}>
       {tabs.map((tab) => {
         const isActive = active === tab.key;
         return (

@@ -15,11 +15,11 @@ export const mockActivities: Activity[] = [
 
 export const currentUser: UserProfile = {
   id: 'me',
-  name: 'Casey Lee',
-  handle: 'casey',
-  avatar: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=240&q=60',
-  location: 'Brooklyn, NY',
-  bio: 'Building Ambira, tracking progress daily.',
+  name: 'Ryan O\'Connor',
+  handle: 'ryan',
+  avatar: 'https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg',
+  location: 'Seattle, WA',
+  bio: 'Tracking progress daily.',
   followers: 124,
   following: 201,
   totalHours: 182,

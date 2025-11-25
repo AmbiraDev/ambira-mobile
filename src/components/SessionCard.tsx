@@ -25,18 +25,6 @@ type SessionCardProps = {
   showActions?: boolean;
 };
 
-const VISIBILITY_LABELS: Record<Session['visibility'], string> = {
-  everyone: 'Public',
-  followers: 'Followers',
-  private: 'Private',
-};
-
-const FEELING_LABELS: Record<string, string> = {
-  energized: 'Energized',
-  neutral: 'Neutral',
-  tired: 'Tired',
-};
-
 const formatDuration = (minutes: number): string => {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -101,11 +89,11 @@ export function SessionCard({
     }
   };
 
-  const content = (
-    <View style={styles.card}>
-      <View style={styles.headerRow}>
-        <TouchableOpacity
-          style={styles.headerPressable}
+const content = (
+  <View style={styles.card}>
+    <View style={styles.headerRow}>
+      <TouchableOpacity
+        style={styles.headerPressable}
           disabled={!onUserPress || !user}
           onPress={() => {
             if (user && onUserPress) onUserPress(user.id);
@@ -119,50 +107,10 @@ export function SessionCard({
             </Text>
           </View>
         </TouchableOpacity>
-        <View style={styles.visibility}>
-          <Text style={styles.visibilityText}>
-            {VISIBILITY_LABELS[session.visibility]}
-          </Text>
-        </View>
       </View>
 
       <Text style={styles.title}>{session.title}</Text>
       {session.description ? <Text style={styles.description}>{session.description}</Text> : null}
-
-      <View style={styles.metaRow}>
-        {activity ? (
-          <View style={styles.metaPill}>
-            <Text style={styles.metaLabel}>{activity.emoji}</Text>
-            <Text style={styles.metaValue}>{activity.name}</Text>
-          </View>
-        ) : null}
-        <View style={styles.metaPill}>
-          <Text style={styles.metaLabel}>⏱</Text>
-          <Text style={styles.metaValue}>{formatDuration(session.durationMinutes)}</Text>
-        </View>
-        {session.feeling ? (
-          <View style={styles.metaPill}>
-            <Text style={styles.metaLabel}>🙂</Text>
-            <Text style={styles.metaValue}>
-              {FEELING_LABELS[session.feeling] ?? session.feeling}
-            </Text>
-          </View>
-        ) : null}
-      </View>
-
-      <View style={styles.metaRow}>
-        {session.project ? (
-          <View style={[styles.metaPill, styles.projectPill]}>
-            <Text style={styles.metaLabel}>•</Text>
-            <Text style={styles.metaValue}>{session.project}</Text>
-          </View>
-        ) : null}
-        <View style={[styles.metaPill, styles.visibilityPill]}>
-          <Text style={[styles.metaValue, styles.visibilityValue]}>
-            {VISIBILITY_LABELS[session.visibility]}
-          </Text>
-        </View>
-      </View>
 
       {session.media && session.media.length > 0 ? (
         <ScrollView
@@ -179,15 +127,18 @@ export function SessionCard({
       {showActions ? (
         <View style={styles.actionsRow}>
           <TouchableOpacity onPress={handleSupport} style={styles.action}>
-            <Text style={[styles.actionLabel, supported && styles.actionLabelActive]}>
-              {supported ? 'Supported' : 'Support'} · {supportCount}
+            <Text style={[styles.actionIcon, supported && styles.actionIconActive]}>
+              {supported ? '❤️' : '🤍'}
             </Text>
+            <Text style={styles.actionLabel}>{supportCount}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={onCommentPress} style={styles.action}>
-            <Text style={styles.actionLabel}>Comment · {session.comments}</Text>
+            <Text style={styles.actionIcon}>💬</Text>
+            <Text style={styles.actionLabel}>{session.comments}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleShare} style={styles.action}>
-            <Text style={styles.actionLabel}>Share · {session.shares}</Text>
+            <Text style={styles.actionIcon}>🔗</Text>
+            <Text style={styles.actionLabel}>{session.shares}</Text>
           </TouchableOpacity>
         </View>
       ) : null}
@@ -243,20 +194,6 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontFamily: 'DM Sans',
   },
-  visibility: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-    backgroundColor: colors.pill,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
-  },
-  visibilityText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.textDark,
-    fontFamily: 'DM Sans',
-  },
   title: {
     fontSize: 17,
     fontWeight: '800',
@@ -267,43 +204,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textMuted,
     fontFamily: 'DM Sans',
-  },
-  metaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 4,
-  },
-  metaPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    backgroundColor: colors.pill,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
-  },
-  metaLabel: {
-    fontSize: 12,
-    color: colors.textMuted,
-  },
-  metaValue: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.textDark,
-    fontFamily: 'DM Sans',
-  },
-  projectPill: {
-    backgroundColor: colors.white,
-  },
-  visibilityPill: {
-    backgroundColor: colors.visibilityPill,
-    borderColor: colors.brandPrimary,
-  },
-  visibilityValue: {
-    color: colors.brandPrimary,
   },
   mediaRow: {
     gap: 10,
@@ -325,6 +225,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
   },
   actionLabel: {
     fontSize: 13,
@@ -332,7 +235,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: 'DM Sans',
   },
-  actionLabelActive: {
+  actionIcon: {
+    fontSize: 16,
+    color: colors.textMuted,
+  },
+  actionIconActive: {
     color: colors.brandPrimary,
   },
 });

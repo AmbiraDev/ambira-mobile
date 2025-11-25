@@ -14,7 +14,7 @@ import {
 
 import { MobileHeader } from '@/components/MobileHeader';
 import { mockActivities } from '@/data/mockData';
-import type { Activity, Feeling, Session, Visibility } from '@/types/models';
+import type { Activity, Session, Visibility } from '@/types/models';
 import { colors } from '@/theme/colors';
 
 type TimerScreenProps = {
@@ -24,12 +24,6 @@ type TimerScreenProps = {
 };
 
 type TimerState = 'idle' | 'running' | 'paused';
-
-const FEELINGS: { key: Feeling; label: string }[] = [
-  { key: 'energized', label: 'Energized' },
-  { key: 'neutral', label: 'Neutral' },
-  { key: 'tired', label: 'Tired' },
-];
 
 const VISIBILITY_LABELS: Record<Visibility, string> = {
   everyone: 'Everyone',
@@ -45,7 +39,6 @@ export function TimerScreen({
   const [selectedActivity, setSelectedActivity] = React.useState<Activity | null>(
     mockActivities[0],
   );
-  const [feeling, setFeeling] = React.useState<Feeling>('energized');
   const [visibility, setVisibility] = React.useState<Visibility>(defaultVisibility);
   const [note, setNote] = React.useState('');
   const [photos, setPhotos] = React.useState<string[]>([]);
@@ -162,7 +155,6 @@ export function TimerScreen({
       activityId: selectedActivity?.id ?? mockActivities[0].id,
       durationMinutes,
       visibility,
-      feeling,
       media: photos,
       privateNotes: note,
       createdAt: new Date().toISOString(),
@@ -190,26 +182,6 @@ export function TimerScreen({
               <Text style={[styles.pillText, active && styles.pillTextActive]}>
                 {VISIBILITY_LABELS[option]}
               </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-    </View>
-  );
-
-  const renderFeelingSelector = () => (
-    <View style={styles.section}>
-      <Text style={styles.sectionLabel}>How did it feel?</Text>
-      <View style={styles.pillRow}>
-        {FEELINGS.map((option) => {
-          const active = option.key === feeling;
-          return (
-            <TouchableOpacity
-              key={option.key}
-              style={[styles.pill, active && styles.pillActive]}
-              onPress={() => setFeeling(option.key)}
-            >
-              <Text style={[styles.pillText, active && styles.pillTextActive]}>{option.label}</Text>
             </TouchableOpacity>
           );
         })}
@@ -258,7 +230,6 @@ export function TimerScreen({
               </ScrollView>
             </View>
 
-            {renderFeelingSelector()}
             {renderVisibilitySelector()}
 
             <View style={styles.section}>
