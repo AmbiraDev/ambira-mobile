@@ -1,4 +1,5 @@
 import React from 'react';
+import { Heart, MessageCircle, Share2 } from 'lucide-react-native';
 import {
   Image,
   ScrollView,
@@ -89,11 +90,11 @@ export function SessionCard({
     }
   };
 
-const content = (
-  <View style={styles.card}>
-    <View style={styles.headerRow}>
-      <TouchableOpacity
-        style={styles.headerPressable}
+  const content = (
+    <View style={styles.card}>
+      <View style={styles.headerRow}>
+        <TouchableOpacity
+          style={styles.headerPressable}
           disabled={!onUserPress || !user}
           onPress={() => {
             if (user && onUserPress) onUserPress(user.id);
@@ -127,17 +128,20 @@ const content = (
       {showActions ? (
         <View style={styles.actionsRow}>
           <TouchableOpacity onPress={handleSupport} style={styles.action}>
-            <Text style={[styles.actionIcon, supported && styles.actionIconActive]}>
-              {supported ? '❤️' : '🤍'}
-            </Text>
+            <Heart
+              size={18}
+              color={supported ? colors.brandPrimary : colors.textMuted}
+              fill={supported ? colors.brandPrimary : 'none'}
+              strokeWidth={supported ? 2.2 : 2}
+            />
             <Text style={styles.actionLabel}>{supportCount}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={onCommentPress} style={styles.action}>
-            <Text style={styles.actionIcon}>💬</Text>
+            <MessageCircle size={18} color={colors.textMuted} strokeWidth={2.2} />
             <Text style={styles.actionLabel}>{session.comments}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={handleShare} style={styles.action}>
-            <Text style={styles.actionIcon}>🔗</Text>
+            <Share2 size={18} color={colors.textMuted} strokeWidth={2.2} />
             <Text style={styles.actionLabel}>{session.shares}</Text>
           </TouchableOpacity>
         </View>
@@ -234,12 +238,5 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontWeight: '700',
     fontFamily: 'DM Sans',
-  },
-  actionIcon: {
-    fontSize: 16,
-    color: colors.textMuted,
-  },
-  actionIconActive: {
-    color: colors.brandPrimary,
   },
 });

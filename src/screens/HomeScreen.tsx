@@ -1,4 +1,5 @@
 import React from 'react';
+import { Bell, Circle, Flame } from 'lucide-react-native';
 import {
   ScrollView,
   StyleSheet,
@@ -104,7 +105,12 @@ export function HomeScreen({
         {activityBreakdown.map((item) => (
           <View key={item.activityId} style={styles.activityRow}>
             <View style={styles.activityLabelRow}>
-              <Text style={styles.activityDot}>•</Text>
+              <Circle
+                size={12}
+                color={colors.brandPrimary}
+                fill={colors.brandPrimary}
+                strokeWidth={2}
+              />
               <Text style={styles.activityName}>{item.label}</Text>
             </View>
             <Text style={styles.activityPercent}>{item.percent}%</Text>
@@ -123,11 +129,11 @@ export function HomeScreen({
     <View style={styles.page}>
       <MobileHeader
         title="Home"
-        rightIcon="🔔"
+        rightIcon={Bell}
         onRightPress={onOpenNotifications}
         leftElement={
           <View style={styles.streakChip}>
-            <Text style={styles.streakIcon}>🔥</Text>
+            <Flame size={16} color={colors.brandPrimary} fill={colors.brandPrimary} />
             <Text style={styles.streakText}>{currentUser.streakDays}</Text>
           </View>
         }
@@ -325,10 +331,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  activityDot: {
-    color: colors.brandPrimary,
-    fontSize: 18,
-  },
   activityName: {
     fontSize: 13,
     color: colors.textDark,
@@ -352,9 +354,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-  },
-  streakIcon: {
-    fontSize: 16,
   },
   streakText: {
     fontSize: 13,

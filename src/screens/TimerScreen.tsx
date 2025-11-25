@@ -1,4 +1,6 @@
 import React from 'react';
+import { BookOpen, Dumbbell, Hammer, Palette } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 import {
   GestureResponderEvent,
   Image,
@@ -29,6 +31,13 @@ const VISIBILITY_LABELS: Record<Visibility, string> = {
   everyone: 'Everyone',
   followers: 'Followers',
   private: 'Private',
+};
+
+const ACTIVITY_ICONS: Record<Activity['id'], LucideIcon> = {
+  study: BookOpen,
+  build: Hammer,
+  design: Palette,
+  fitness: Dumbbell,
 };
 
 export function TimerScreen({
@@ -211,18 +220,24 @@ export function TimerScreen({
               >
                 {mockActivities.map((activity) => {
                   const active = selectedActivity?.id === activity.id;
+                  const ActivityIcon = ACTIVITY_ICONS[activity.id] ?? BookOpen;
                   return (
                     <TouchableOpacity
                       key={activity.id}
-                      style={[styles.pill, active && styles.pillActive]}
+                      style={[styles.pill, styles.activityPill, active && styles.pillActive]}
                       onPress={() => {
                         setSelectedActivity(activity);
                         setError(null);
                         setReviewTitle(activity.name);
                       }}
                     >
+                      <ActivityIcon
+                        size={16}
+                        color={active ? colors.brandPrimary : colors.textMuted}
+                        strokeWidth={2.2}
+                      />
                       <Text style={[styles.pillText, active && styles.pillTextActive]}>
-                        {activity.emoji} {activity.name}
+                        {activity.name}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -428,6 +443,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.cardBorder,
+  },
+  activityPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   pillActive: {
     backgroundColor: colors.pill,

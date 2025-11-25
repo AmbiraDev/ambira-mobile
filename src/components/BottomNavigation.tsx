@@ -1,4 +1,6 @@
 import React from 'react';
+import { Home, Timer, UserRound } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -11,10 +13,10 @@ type BottomNavigationProps = {
   onChange: (tab: BottomTabKey) => void;
 };
 
-const tabs: { key: BottomTabKey; label: string; icon: string }[] = [
-  { key: 'home', label: 'Home', icon: '🏠' },
-  { key: 'timer', label: 'Record', icon: '⏱' },
-  { key: 'profile', label: 'Profile', icon: '😊' },
+const tabs: { key: BottomTabKey; label: string; icon: LucideIcon }[] = [
+  { key: 'home', label: 'Home', icon: Home },
+  { key: 'timer', label: 'Record', icon: Timer },
+  { key: 'profile', label: 'Profile', icon: UserRound },
 ];
 
 export function BottomNavigation({ active, onChange }: BottomNavigationProps): React.JSX.Element {
@@ -25,6 +27,7 @@ export function BottomNavigation({ active, onChange }: BottomNavigationProps): R
     <View style={[styles.container, { paddingBottom }]}>
       {tabs.map((tab) => {
         const isActive = active === tab.key;
+        const Icon = tab.icon;
         return (
           <TouchableOpacity
             key={tab.key}
@@ -33,7 +36,11 @@ export function BottomNavigation({ active, onChange }: BottomNavigationProps): R
             accessibilityRole="button"
             accessibilityLabel={tab.label}
           >
-            <Text style={[styles.icon, isActive && styles.iconActive]}>{tab.icon}</Text>
+            <Icon
+              size={20}
+              color={isActive ? colors.brandPrimary : colors.textMuted}
+              strokeWidth={2.4}
+            />
             <Text style={[styles.label, isActive && styles.labelActive]}>{tab.label}</Text>
           </TouchableOpacity>
         );
@@ -70,13 +77,6 @@ const styles = StyleSheet.create({
   },
   itemActive: {
     backgroundColor: colors.pill,
-  },
-  icon: {
-    fontSize: 18,
-    color: colors.textMuted,
-  },
-  iconActive: {
-    color: colors.brandPrimary,
   },
   label: {
     marginTop: 4,

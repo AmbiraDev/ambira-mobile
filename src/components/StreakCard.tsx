@@ -1,4 +1,5 @@
 import React from 'react';
+import { Flame } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '@/theme/colors';
@@ -12,7 +13,7 @@ export function StreakCard({ current, best }: StreakCardProps): React.JSX.Elemen
   return (
     <View style={styles.card}>
       <View style={styles.badge}>
-        <Text style={styles.badgeIcon}>🔥</Text>
+        <Flame size={22} color={colors.brandPrimary} fill={colors.brandPrimary} />
       </View>
       <View style={styles.body}>
         <Text style={styles.label}>Current streak</Text>
@@ -48,9 +49,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: colors.cardBorder,
-  },
-  badgeIcon: {
-    fontSize: 22,
   },
   body: {
     flex: 1,

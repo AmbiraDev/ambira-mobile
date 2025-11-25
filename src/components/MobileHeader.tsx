@@ -1,4 +1,6 @@
 import React from 'react';
+import { ArrowLeft } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { colors } from '@/theme/colors';
@@ -7,7 +9,7 @@ type MobileHeaderProps = {
   title: string;
   subtitle?: string;
   onBack?: () => void;
-  rightIcon?: string;
+  rightIcon?: LucideIcon;
   onRightPress?: () => void;
   leftElement?: React.ReactNode;
 };
@@ -20,11 +22,13 @@ export function MobileHeader({
   onRightPress,
   leftElement,
 }: MobileHeaderProps): React.JSX.Element {
+  const RightIcon = rightIcon;
+
   return (
     <View style={styles.container}>
       {onBack ? (
         <TouchableOpacity onPress={onBack} hitSlop={12}>
-          <Text style={styles.back}>{'\u2039'}</Text>
+          <ArrowLeft size={24} color={colors.textDark} />
         </TouchableOpacity>
       ) : leftElement ? (
         <View style={styles.leftSlot}>{leftElement}</View>
@@ -35,9 +39,9 @@ export function MobileHeader({
         <Text style={styles.title}>{title}</Text>
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
-      {rightIcon ? (
+      {RightIcon ? (
         <TouchableOpacity onPress={onRightPress} hitSlop={12}>
-          <Text style={styles.right}>{rightIcon}</Text>
+          <RightIcon size={20} color={colors.textDark} />
         </TouchableOpacity>
       ) : (
         <View style={styles.spacer} />
@@ -68,16 +72,6 @@ const styles = StyleSheet.create({
     minWidth: 26,
     alignItems: 'flex-start',
     justifyContent: 'center',
-  },
-  back: {
-    fontSize: 24,
-    color: colors.textDark,
-    fontWeight: '700',
-  },
-  right: {
-    fontSize: 18,
-    color: colors.textDark,
-    fontWeight: '700',
   },
   titleBlock: {
     flex: 1,
