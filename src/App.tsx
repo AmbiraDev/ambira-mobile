@@ -1,35 +1,148 @@
 import React from 'react';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView, StyleSheet } from 'react-native';
 
-import { EmailSignUpScreen } from '@/screens/EmailSignUpScreen';
+import { BottomNavigation, type BottomTabKey } from '@/components/BottomNavigation';
+import {
+  currentUser as seedUser,
+  followingList,
+  getUserById,
+  mockActivities,
+  mockSessions,
+} from '@/data/mockData';
+import { HomeScreen } from '@/screens/HomeScreen';
 import { LogInScreen } from '@/screens/LogInScreen';
+import { EmailSignUpScreen } from '@/screens/EmailSignUpScreen';
+import { NotificationsScreen } from '@/screens/NotificationsScreen';
+import { ProfileScreen } from '@/screens/ProfileScreen';
+import { SessionDetailScreen } from '@/screens/SessionDetailScreen';
 import { SignUpScreen } from '@/screens/SignUpScreen';
+import { TimerScreen } from '@/screens/TimerScreen';
 import { WelcomeScreen } from '@/screens/WelcomeScreen';
 import { colors } from '@/theme/colors';
+import type { Session, UserProfile } from '@/types/models';
 
-/**
- * Root component that wires up global providers before rendering the first screen.
- */
+type AuthStage = 'welcome' | 'signup' | 'email' | 'login';
+
 export default function App(): React.JSX.Element {
-  const [screen, setScreen] = React.useState<'welcome' | 'signup' | 'email' | 'login'>('welcome');
+  const [authStage, setAuthStage] = React.useState<AuthStage>('welcome');
+  const [user, setUser] = React.useState<UserProfile | null>(null);
+  const [activeTab, setActiveTab] = React.useState<BottomTabKey>('home');
+  const [sessions, setSessions] = React.useState<Session[]>(mockSessions);
+  const [viewingSession, setViewingSession] = React.useState<Session | null>(null);
+  const [profileUser, setProfileUser] = React.useState<UserProfile>(seedUser);
+
+  const followingIds = React.useMemo(
+    () => [
+      seedUser.id,
+      ...followingList.filter((person) => person.isFollowing).map((person) => person.id),
+    ],
+    [],
+  );
+
+  const handleAuthComplete = () => {
+    setUser(seedUser);
+    setActiveTab('home');
+    setProfileUser(seedUser);
+  };
+
+  const handleSaveSession = (partial: Partial<Session>) => {
+    const newSession: Session = {
+      id: `sess-${Date.now()}`,
+      userId: seedUser.id,
+      title: partial.title ?? 'Session',
+      description: partial.description,
+      activityId: partial.activityId ?? mockActivities[0].id,
+      project: partial.project ?? 'Personal',
+      durationMinutes: partial.durationMinutes ?? 25,
+      feeling: partial.feeling,
+      visibility: partial.visibility ?? 'everyone',
+      createdAt: partial.createdAt ?? new Date().toISOString(),
+      media: partial.media,
+      supports: 0,
+      comments: 0,
+      shares: 0,
+      supported: false,
+      isOwner: true,
+      privateNotes: partial.privateNotes,
+    };
+    setSessions((prev) => [newSession, ...prev]);
+    setViewingSession(newSession);
+    setActiveTab('home');
+  };
+
+  const openProfile = (userId: string) => {
+    const target = getUserById(userId);
+    setProfileUser(target ?? seedUser);
+    setActiveTab('profile');
+  };
+
+  const openSession = (session: Session) => {
+    setViewingSession(session);
+  };
+
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="dark" backgroundColor="#FFFFFF" />
+        {authStage === 'welcome' ? (
+          <WelcomeScreen onSignUp={() => setAuthStage('signup')} onLogin={() => setAuthStage('login')} />
+        ) : authStage === 'signup' ? (
+          <SignUpScreen
+            onLogin={() => setAuthStage('login')}
+            onBack={() => setAuthStage('welcome')}
+            onEmailSignUp={() => setAuthStage('email')}
+            onAuthComplete={handleAuthComplete}
+          />
+        ) : authStage === 'email' ? (
+          <EmailSignUpScreen onBack={() => setAuthStage('signup')} onSubmit={handleAuthComplete} />
+        ) : (
+          <LogInScreen onBack={() => setAuthStage('welcome')} onAuthComplete={handleAuthComplete} />
+        )}
+      </SafeAreaView>
+    );
+  }
+
+  const currentProfile = profileUser ?? seedUser;
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" backgroundColor="#FFFFFF" />
-      {screen === 'welcome' ? (
-        <WelcomeScreen onSignUp={() => setScreen('signup')} onLogin={() => setScreen('login')} />
-      ) : screen === 'signup' ? (
-        <SignUpScreen
-          onLogin={() => setScreen('login')}
-          onBack={() => setScreen('welcome')}
-          onEmailSignUp={() => setScreen('email')}
+      <View style={styles.content}>
+        {viewingSession ? (
+          <SessionDetailScreen
+            session={viewingSession}
+            onBack={() => setViewingSession(null)}
+            onNavigateHome={() => {
+              setViewingSession(null);
+              setActiveTab('home');
+            }}
+          />
+        ) : activeTab === 'home' ? (
+          <HomeScreen
+            currentUser={seedUser}
+            sessions={sessions}
+            followingIds={followingIds}
+            onOpenSession={openSession}
+            onOpenProfile={openProfile}
+            onOpenNotifications={() => setActiveTab('notifications')}
+          />
+        ) : activeTab === 'timer' ? (
+          <TimerScreen onSaveSession={handleSaveSession} />
+        ) : activeTab === 'profile' ? (
+          <ProfileScreen user={currentProfile} sessions={sessions} onSelectSession={openSession} />
+        ) : (
+          <NotificationsScreen />
+        )}
+        <BottomNavigation
+          active={activeTab}
+          onChange={(next) => {
+            setViewingSession(null);
+            setActiveTab(next);
+            if (next === 'profile') setProfileUser(seedUser);
+          }}
         />
-      ) : screen === 'email' ? (
-        <EmailSignUpScreen onBack={() => setScreen('signup')} />
-      ) : (
-        <LogInScreen onBack={() => setScreen('welcome')} />
-      )}
+      </View>
     </SafeAreaView>
   );
 }
@@ -37,6 +150,9 @@ export default function App(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.card,
+    backgroundColor: colors.backgroundAlt,
+  },
+  content: {
+    flex: 1,
   },
 });

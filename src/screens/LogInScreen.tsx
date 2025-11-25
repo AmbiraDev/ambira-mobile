@@ -15,9 +15,10 @@ import googleIcon from '../../public/google.png';
 
 type LogInScreenProps = {
   onBack?: () => void;
+  onAuthComplete?: () => void;
 };
 
-export function LogInScreen({ onBack }: LogInScreenProps): React.JSX.Element {
+export function LogInScreen({ onBack, onAuthComplete }: LogInScreenProps): React.JSX.Element {
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -35,7 +36,7 @@ export function LogInScreen({ onBack }: LogInScreenProps): React.JSX.Element {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.googleButton}>
+        <TouchableOpacity style={styles.googleButton} onPress={onAuthComplete}>
           <View style={styles.googleContent}>
             <Image source={googleIcon} style={styles.googleIcon} />
             <Text style={styles.googleLabel}>Continue with Google</Text>
@@ -69,7 +70,7 @@ export function LogInScreen({ onBack }: LogInScreenProps): React.JSX.Element {
           />
         </View>
 
-        <TouchableOpacity style={styles.submitButton}>
+        <TouchableOpacity style={styles.submitButton} onPress={onAuthComplete}>
           <Text style={styles.submitLabel}>Sign In</Text>
         </TouchableOpacity>
       </View>
