@@ -168,7 +168,11 @@ export function ReviewScreen({
               </TouchableOpacity>
             </View>
             {photos.length > 0 ? (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photoList}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.photoList}
+              >
                 {photos.map((uri) => (
                   <Image key={uri} source={{ uri }} style={styles.photo} />
                 ))}

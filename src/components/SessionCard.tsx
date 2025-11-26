@@ -51,7 +51,7 @@ const timeAgo = (dateString: string): string => {
 export function SessionCard({
   session,
   user,
-  activity,
+  activity: _activity,
   onPress,
   onSupportToggle,
   onCommentPress,

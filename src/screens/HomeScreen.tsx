@@ -132,10 +132,12 @@ export function HomeScreen({
         rightIcon={Bell}
         onRightPress={onOpenNotifications}
         leftElement={
-          <View style={styles.streakChip}>
-            <Flame size={16} color={colors.brandPrimary} fill={colors.brandPrimary} />
-            <Text style={styles.streakText}>{currentUser.streakDays}</Text>
-          </View>
+          (
+            <View style={styles.streakChip}>
+              <Flame size={16} color={colors.brandPrimary} fill={colors.brandPrimary} />
+              <Text style={styles.streakText}>{currentUser.streakDays}</Text>
+            </View>
+          )
         }
       />
       <ScrollView
@@ -244,13 +246,6 @@ const styles = StyleSheet.create({
   },
   filterTextActive: {
     color: colors.brandPrimary,
-  },
-  filterHint: {
-    marginTop: 6,
-    fontSize: 12,
-    color: colors.textMuted,
-    textAlign: 'center',
-    fontFamily: 'DM Sans',
   },
   cardStack: {
     gap: 12,

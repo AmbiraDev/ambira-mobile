@@ -129,7 +129,11 @@ export default function App(): React.JSX.Element {
                 />
               )
             ) : activeTab === 'profile' ? (
-              <ProfileScreen user={currentProfile} sessions={sessions} onSelectSession={openSession} />
+              <ProfileScreen
+                user={currentProfile}
+                sessions={sessions}
+                onSelectSession={openSession}
+              />
             ) : (
               <NotificationsScreen />
             )}

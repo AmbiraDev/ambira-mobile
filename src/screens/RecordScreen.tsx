@@ -321,19 +321,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     fontFamily: 'DM Sans',
   },
-  finishButton: {
-    height: 52,
-    borderRadius: 14,
-    backgroundColor: colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  finishButtonLabel: {
-    color: '#65c466',
-    fontSize: 16,
-    fontWeight: '800',
-    fontFamily: 'DM Sans'
-  },
   destructiveButton: {
     height: 52,
     borderRadius: 14,
