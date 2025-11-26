@@ -27,7 +27,7 @@ export function SignUpScreen({
       <View style={styles.loginRow}>
         <Text style={styles.loginPrompt}>Already a Member? </Text>
         <Text style={styles.loginLink} onPress={onLogin ?? onBack}>
-          Log in
+          Sign in
         </Text>
       </View>
 

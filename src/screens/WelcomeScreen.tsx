@@ -12,19 +12,21 @@ type WelcomeScreenProps = {
 export function WelcomeScreen({ onSignUp, onLogin }: WelcomeScreenProps): React.JSX.Element {
   return (
     <View style={styles.container}>
-      <Image source={blueOnWhite} style={styles.logo} resizeMode="contain" />
-      <Text style={styles.title}>
-        Make productivity <Text style={styles.highlight}>social.</Text>
-      </Text>
-      <TouchableOpacity style={styles.ctaButton} onPress={onSignUp}>
-        <Text style={styles.ctaLabel}>Sign up free</Text>
-      </TouchableOpacity>
-      <Text style={styles.loginRow}>
-        <Text style={styles.loginPrompt}>Already a member? </Text>
-        <Text style={styles.loginLink} onPress={onLogin}>
-          Log in
+      <View style={styles.content}>
+        <Image source={blueOnWhite} style={styles.logo} resizeMode="contain" />
+        <Text style={styles.title}>
+          Make productivity <Text style={styles.highlight}>social.</Text>
         </Text>
-      </Text>
+        <TouchableOpacity style={styles.ctaButton} onPress={onSignUp}>
+          <Text style={styles.ctaLabel}>Sign up free</Text>
+        </TouchableOpacity>
+        <Text style={styles.loginRow}>
+          <Text style={styles.loginPrompt}>Already a member? </Text>
+          <Text style={styles.loginLink} onPress={onLogin}>
+            Sign in
+          </Text>
+        </Text>
+      </View>
     </View>
   );
 }
@@ -36,17 +38,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  content: {
+    alignItems: 'center',
+    transform: [{ translateY: -32 }],
+  },
   logo: {
     width: 150,
     height: 150,
     marginBottom: 12,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '800',
     color: colors.textDark,
     fontFamily: 'DM Sans',
-    marginBottom: 24,
+    marginTop: 2,
+    marginBottom: 16,
   },
   highlight: {
     color: colors.brandPrimary,

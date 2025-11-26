@@ -18,10 +18,11 @@ import { NotificationsScreen } from '@/screens/NotificationsScreen';
 import { ProfileScreen } from '@/screens/ProfileScreen';
 import { SessionDetailScreen } from '@/screens/SessionDetailScreen';
 import { SignUpScreen } from '@/screens/SignUpScreen';
-import { TimerScreen } from '@/screens/TimerScreen';
+import { RecordScreen } from '@/screens/RecordScreen';
+import { ReviewScreen, type ReviewDraft } from '@/screens/ReviewScreen';
 import { WelcomeScreen } from '@/screens/WelcomeScreen';
 import { colors } from '@/theme/colors';
-import type { Session, UserProfile } from '@/types/models';
+import type { Session, UserProfile, Visibility } from '@/types/models';
 
 type AuthStage = 'welcome' | 'signup' | 'email' | 'login';
 
@@ -32,6 +33,8 @@ export default function App(): React.JSX.Element {
   const [sessions, setSessions] = React.useState<Session[]>(mockSessions);
   const [viewingSession, setViewingSession] = React.useState<Session | null>(null);
   const [profileUser, setProfileUser] = React.useState<UserProfile>(seedUser);
+  const [reviewDraft, setReviewDraft] = React.useState<ReviewDraft | null>(null);
+  const [defaultVisibility, setDefaultVisibility] = React.useState<Visibility>('everyone');
 
   const followingIds = React.useMemo(
     () => [
@@ -70,12 +73,15 @@ export default function App(): React.JSX.Element {
     setSessions((prev) => [newSession, ...prev]);
     setViewingSession(newSession);
     setActiveTab('home');
+    setReviewDraft(null);
+    if (partial.visibility) setDefaultVisibility(partial.visibility);
   };
 
   const openProfile = (userId: string) => {
     const target = getUserById(userId);
     setProfileUser(target ?? seedUser);
     setActiveTab('profile');
+    setReviewDraft(null);
   };
 
   const openSession = (session: Session) => {
@@ -109,9 +115,25 @@ export default function App(): React.JSX.Element {
                 onOpenNotifications={() => setActiveTab('notifications')}
               />
             ) : activeTab === 'timer' ? (
-              <TimerScreen onSaveSession={handleSaveSession} />
+              reviewDraft ? (
+                <ReviewScreen
+                  draft={reviewDraft}
+                  onBack={() => setReviewDraft(null)}
+                  onDiscard={() => setReviewDraft(null)}
+                  onSave={handleSaveSession}
+                />
+              ) : (
+                <RecordScreen
+                  defaultVisibility={defaultVisibility}
+                  onStartReview={(draft) => setReviewDraft(draft)}
+                />
+              )
             ) : activeTab === 'profile' ? (
-              <ProfileScreen user={currentProfile} sessions={sessions} onSelectSession={openSession} />
+              <ProfileScreen
+                user={currentProfile}
+                sessions={sessions}
+                onSelectSession={openSession}
+              />
             ) : (
               <NotificationsScreen />
             )}
@@ -119,6 +141,7 @@ export default function App(): React.JSX.Element {
               active={activeTab}
               onChange={(next) => {
                 setViewingSession(null);
+                setReviewDraft(null);
                 setActiveTab(next);
                 if (next === 'profile') setProfileUser(seedUser);
               }}
