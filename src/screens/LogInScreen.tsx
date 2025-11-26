@@ -1,4 +1,4 @@
-import type React from 'react';
+import React from 'react';
 import {
   Image,
   ScrollView,
@@ -9,9 +9,15 @@ import {
   View,
 } from 'react-native';
 
+// Expo auth session for Google sign-in
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import { Platform } from 'react-native';
+
 import { colors } from '@/theme/colors';
 import blueOnWhite from '../../public/blue-on-white.png';
 import googleIcon from '../../public/google.png';
+import { useAuth } from '@/firebase/AuthContext';
 
 type LogInScreenProps = {
   onBack?: () => void;
@@ -19,6 +25,96 @@ type LogInScreenProps = {
 };
 
 export function LogInScreen({ onBack, onAuthComplete }: LogInScreenProps): React.JSX.Element {
+  const { signIn, signInWithGoogle } = useAuth();
+
+  // Complete any pending web-browser auth session (required by expo-auth-session)
+  WebBrowser.maybeCompleteAuthSession();
+
+  // // Load env vars (prefer @env if configured)
+  // let env: any = {};
+  // try {
+  //   // eslint-disable-next-line @typescript-eslint/no-var-requires
+  //   env = require('@env');
+  // } catch (_e) {
+  //   env = process.env as any;
+  // }
+
+  // const googleClientId =
+  //   env.GOOGLE_CLIENT_ID_EXPO || env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || env.GOOGLE_CLIENT_ID || env.GOOGLE_CLIENT_ID_EXPO;
+
+  // const iosClientId = env.GOOGLE_IOS_CLIENT_ID || env.NEXT_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+
+  // const androidClientId = env.GOOGLE_ANDROID_CLIENT_ID || env.NEXT_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
+
+  // let isExpoGo = false;
+  // try {
+  //   // dynamically require to avoid type/bundler issues if not present
+  //   // eslint-disable-next-line @typescript-eslint/no-var-requires
+  //   const Constants = require('expo-constants');
+  //   isExpoGo = Constants?.appOwnership === 'expo';
+  // } catch (_e) {}
+  // const runningOnIos = Platform.OS === 'ios';
+
+  // const googleConfig: any = {};
+  // if (googleClientId) googleConfig.clientId = googleClientId;
+  // if (iosClientId) googleConfig.iosClientId = iosClientId;
+  // if (androidClientId) googleConfig.androidClientId = androidClientId;
+
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    clientId: '374690007345-sbet4hhombjp4c0t0vv6j76sc0qhnejo.apps.googleusercontent.com',
+    webClientId: '374690007345-sbet4hhombjp4c0t0vv6j76sc0qhnejo.apps.googleusercontent.com',
+    iosClientId: '374690007345-hpt1jnnhtn7db2osfp27g84f5l9ioh5v.apps.googleusercontent.com',
+  });
+
+
+  // const missingIosClientId = runningOnIos && !iosClientId && !isExpoGo;
+
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const handleSignIn = async () => {
+    setError(null);
+    if (!email.trim() || !password) {
+      setError('Please enter email and password');
+      return;
+    }
+    setLoading(true);
+    try {
+      await signIn(email.trim(), password);
+      onAuthComplete?.();
+    } catch (e: any) {
+      setError(e?.message ?? 'Sign in failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle response from Google OAuth flow
+  React.useEffect(() => {
+    if (response?.type === 'success' && response.params) {
+      const idToken = response.params.id_token;
+      if (!idToken) {
+        setError('Google sign in failed (no id token)');
+        return;
+      }
+
+      (async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          await signInWithGoogle(idToken);
+          onAuthComplete?.();
+        } catch (e: any) {
+          setError(e?.message ?? 'Google sign-in failed');
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }
+  }, [response]);
+
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -36,12 +132,28 @@ export function LogInScreen({ onBack, onAuthComplete }: LogInScreenProps): React
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.googleButton} onPress={onAuthComplete}>
+        <TouchableOpacity
+          style={styles.googleButton}
+          onPress={() => {
+              // start Google OAuth flow. In Expo Go we use the proxy for easier testing.
+              // Use a cast to allow the Expo proxy option in Expo Go
+              // (some typings for promptAsync are conservative about options)
+              (promptAsync as any)({ useProxy: isExpoGo });
+          }}
+          disabled={!request || loading}
+        >
           <View style={styles.googleContent}>
             <Image source={googleIcon} style={styles.googleIcon} />
             <Text style={styles.googleLabel}>Continue with Google</Text>
           </View>
         </TouchableOpacity>
+
+        {missingIosClientId ? (
+          <Text style={styles.errorText}>
+            Google Sign-In on iOS requires an iOS OAuth client ID. Add `GOOGLE_IOS_CLIENT_ID` to your
+            `.env` or test using Expo Go (proxy). See README for steps.
+          </Text>
+        ) : null}
 
         <View style={styles.dividerRow}>
           <View style={styles.divider} />
@@ -57,6 +169,8 @@ export function LogInScreen({ onBack, onAuthComplete }: LogInScreenProps): React
             placeholderTextColor="#A8B2C3"
             keyboardType='email-address'
             autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
 
@@ -67,11 +181,19 @@ export function LogInScreen({ onBack, onAuthComplete }: LogInScreenProps): React
             placeholder="Enter your password"
             placeholderTextColor="#A8B2C3"
             secureTextEntry
+            value={password}
+            onChangeText={setPassword}
           />
         </View>
 
-        <TouchableOpacity style={styles.submitButton} onPress={onAuthComplete}>
-          <Text style={styles.submitLabel}>Sign In</Text>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        <TouchableOpacity
+          style={[styles.submitButton, { opacity: loading ? 0.6 : 1 }]}
+          onPress={handleSignIn}
+          disabled={loading}
+        >
+          <Text style={styles.submitLabel}>{loading ? 'Signing in…' : 'Sign In'}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -195,6 +317,12 @@ const styles = StyleSheet.create({
     color: colors.brandOnPrimary,
     fontSize: 16,
     fontWeight: '800',
+    fontFamily: 'DM Sans',
+  },
+  errorText: {
+    marginTop: 12,
+    color: '#D23F44',
+    fontSize: 13,
     fontFamily: 'DM Sans',
   },
 });

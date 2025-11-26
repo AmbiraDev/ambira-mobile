@@ -30,6 +30,7 @@ tmp/
 temp/
 .env*.local
 *.tsbuildinfo
+.env
 
 # Coverage / build
 coverage/

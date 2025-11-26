@@ -1,4 +1,4 @@
-import type React from 'react';
+import React from 'react';
 import {
   Image,
   ScrollView,
@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useAuth } from '@/firebase/AuthContext';
 
 import { colors } from '@/theme/colors';
 import blueOnWhite from '../../public/blue-on-white.png';
@@ -18,6 +19,38 @@ type EmailSignUpScreenProps = {
 };
 
 export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps): React.JSX.Element {
+  const { signUp } = useAuth();
+
+  const [fullName, setFullName] = React.useState('');
+  const [username, setUsername] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    setError(null);
+    if (!email.trim() || !password) {
+      setError('Please enter email and password');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    setLoading(true);
+    try {
+      await signUp(email.trim(), password, fullName.trim(), { username: username.trim() });
+      // notify parent if needed (App will react to auth state change)
+      onSubmit?.();
+    } catch (e: any) {
+      setError(e?.message ?? 'Sign up failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -41,6 +74,8 @@ export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps):
             style={styles.input}
             placeholder="Enter your full name"
             placeholderTextColor={colors.placeholder}
+            value={fullName}
+            onChangeText={setFullName}
           />
         </View>
 
@@ -50,6 +85,9 @@ export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps):
             style={styles.input}
             placeholder="Choose a username"
             placeholderTextColor={colors.placeholder}
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
           />
         </View>
 
@@ -61,6 +99,8 @@ export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps):
             keyboardType="email-address"
             autoCapitalize="none"
             placeholderTextColor={colors.placeholder}
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
 
@@ -71,6 +111,8 @@ export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps):
             placeholder="Create a password"
             secureTextEntry
             placeholderTextColor={colors.placeholder}
+            value={password}
+            onChangeText={setPassword}
           />
         </View>
 
@@ -81,16 +123,25 @@ export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps):
             placeholder="Confirm your password"
             secureTextEntry
             placeholderTextColor={colors.placeholder}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
           />
         </View>
 
-        <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
-          <Text style={styles.submitLabel}>Create account</Text>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        <TouchableOpacity
+          style={[styles.submitButton, { opacity: loading ? 0.6 : 1 }]}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          <Text style={styles.submitLabel}>{loading ? 'Creating…' : 'Create account'}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -165,6 +216,12 @@ const styles = StyleSheet.create({
     color: colors.brandOnPrimary,
     fontSize: 16,
     fontWeight: '800',
+    fontFamily: 'DM Sans',
+  },
+  errorText: {
+    marginTop: 12,
+    color: '#D23F44',
+    fontSize: 13,
     fontFamily: 'DM Sans',
   },
 });

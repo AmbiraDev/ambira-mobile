@@ -1,7 +1,10 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+
+// Auth provider & hook (you implemented these)
+import { AuthProvider, useAuth } from '@/firebase/AuthContext';
 
 import { BottomNavigation, type BottomTabKey } from '@/components/BottomNavigation';
 import {
@@ -25,32 +28,54 @@ import type { Session, UserProfile } from '@/types/models';
 
 type AuthStage = 'welcome' | 'signup' | 'email' | 'login';
 
+// Top-level App: provides the AuthProvider to the rest of the tree.
 export default function App(): React.JSX.Element {
+  return (
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
+  );
+}
+
+// MainApp: the app UI that consumes auth state via `useAuth()`.
+function MainApp(): React.JSX.Element {
+  // Get the firebase auth user and loading state from your AuthContext
+  const { user: authUser, loading } = useAuth();
+
+  // Local UI state kept for navigation/session behavior
   const [authStage, setAuthStage] = React.useState<AuthStage>('welcome');
-  const [user, setUser] = React.useState<UserProfile | null>(null);
   const [activeTab, setActiveTab] = React.useState<BottomTabKey>('home');
   const [sessions, setSessions] = React.useState<Session[]>(mockSessions);
   const [viewingSession, setViewingSession] = React.useState<Session | null>(null);
   const [profileUser, setProfileUser] = React.useState<UserProfile>(seedUser);
 
+  // Build following IDs list (keeps existing mock-following data)
   const followingIds = React.useMemo(
     () => [
-      seedUser.id,
+      // include the currently signed in user's id if available
+      authUser?.uid ?? seedUser.id,
       ...followingList.filter((person) => person.isFollowing).map((person) => person.id),
     ],
-    [],
+    [authUser],
   );
 
-  const handleAuthComplete = () => {
-    setUser(seedUser);
-    setActiveTab('home');
-    setProfileUser(seedUser);
-  };
+  // Map the firebase auth user to your app's `UserProfile` shape.
+  // This is minimal — for production you should read the full profile from Firestore.
+  const currentUserProfile: UserProfile | null = React.useMemo(() => {
+    if (!authUser) return null;
+    return {
+      ...seedUser,
+      id: authUser.uid,
+      // map firebase displayName -> our `name` field
+      name: authUser.displayName ?? seedUser.name,
+    };
+  }, [authUser]);
 
+  // Create a new session and attach it to the current (authenticated) user
   const handleSaveSession = (partial: Partial<Session>) => {
     const newSession: Session = {
       id: `sess-${Date.now()}`,
-      userId: seedUser.id,
+      userId: currentUserProfile?.id ?? seedUser.id,
       title: partial.title ?? 'Session',
       description: partial.description,
       activityId: partial.activityId ?? mockActivities[0].id,
@@ -84,9 +109,25 @@ export default function App(): React.JSX.Element {
 
   const currentProfile = profileUser ?? seedUser;
 
+  // Show a simple loading placeholder while AuthContext restores the user
+  if (loading) {
+    return (
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.container} edges={['top']}>
+          <StatusBar style="dark" backgroundColor={colors.card} />
+          <View style={styles.content}>
+            <Text>Loading authentication…</Text>
+          </View>
+        </SafeAreaView>
+      </SafeAreaProvider>
+    );
+  }
+
+  // Render authenticated or unauthenticated flows based on authUser
   return (
     <SafeAreaProvider>
-      {user ? (
+      {authUser ? (
+        // Authenticated UI
         <SafeAreaView style={styles.container} edges={['top']}>
           <StatusBar style="dark" backgroundColor={colors.card} />
           <View style={styles.content}>
@@ -101,7 +142,7 @@ export default function App(): React.JSX.Element {
               />
             ) : activeTab === 'home' ? (
               <HomeScreen
-                currentUser={seedUser}
+                currentUser={currentUserProfile ?? seedUser}
                 sessions={sessions}
                 followingIds={followingIds}
                 onOpenSession={openSession}
@@ -126,6 +167,7 @@ export default function App(): React.JSX.Element {
           </View>
         </SafeAreaView>
       ) : (
+        // Unauthenticated UI: keep the existing auth screens flow
         <SafeAreaView style={styles.container} edges={['top']}>
           <StatusBar style="dark" backgroundColor={colors.card} />
           {authStage === 'welcome' ? (
@@ -135,12 +177,13 @@ export default function App(): React.JSX.Element {
               onLogin={() => setAuthStage('login')}
               onBack={() => setAuthStage('welcome')}
               onEmailSignUp={() => setAuthStage('email')}
-              onAuthComplete={handleAuthComplete}
+              // Auth is handled by AuthContext; screens may still accept this prop
+              onAuthComplete={() => {}}
             />
           ) : authStage === 'email' ? (
-            <EmailSignUpScreen onBack={() => setAuthStage('signup')} onSubmit={handleAuthComplete} />
+            <EmailSignUpScreen onBack={() => setAuthStage('signup')} onSubmit={() => {}} />
           ) : (
-            <LogInScreen onBack={() => setAuthStage('welcome')} onAuthComplete={handleAuthComplete} />
+            <LogInScreen onBack={() => setAuthStage('welcome')} onAuthComplete={() => {}} />
           )}
         </SafeAreaView>
       )}
