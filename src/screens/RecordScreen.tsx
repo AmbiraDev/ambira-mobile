@@ -144,7 +144,11 @@ export function RecordScreen({
   return (
     <View style={styles.page}>
       <MobileHeader title="Record" onBack={onBack} />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={false}
+      >
         <View style={styles.container}>
           <View style={styles.timeBlock}>
             <Text style={styles.timerLabel}>Session time</Text>
@@ -188,22 +192,22 @@ export function RecordScreen({
 
           <View style={styles.actions}>
             {timerState === 'idle' ? (
-              <TouchableOpacity style={styles.primaryButton} onPress={startTimer}>
-                <Text style={styles.primaryButtonLabel}>Start</Text>
+              <TouchableOpacity style={styles.resumeButton} onPress={startTimer}>
+                <Text style={styles.resumeButtonLabel}>Start</Text>
               </TouchableOpacity>
             ) : null}
             {timerState === 'running' ? (
-              <TouchableOpacity style={styles.primaryButton} onPress={pauseTimer}>
-                <Text style={styles.primaryButtonLabel}>Pause</Text>
+              <TouchableOpacity style={styles.resumeButton} onPress={pauseTimer}>
+                <Text style={styles.resumeButtonLabel}>Pause</Text>
               </TouchableOpacity>
             ) : null}
             {timerState === 'paused' && elapsedMs > 0 ? (
               <>
-                <TouchableOpacity style={styles.primaryButton} onPress={resumeTimer}>
-                  <Text style={styles.primaryButtonLabel}>Resume</Text>
+                <TouchableOpacity style={styles.resumeButton} onPress={resumeTimer}>
+                  <Text style={styles.resumeButtonLabel}>Resume</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.finishButton} onPress={finishTimer}>
-                  <Text style={styles.finishButtonLabel}>Finish</Text>
+                <TouchableOpacity style={styles.resumeButton} onPress={finishTimer}>
+                  <Text style={styles.resumeButtonLabel}>Finish</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.destructiveButton} onPress={discardTimer}>
                   <Text style={styles.destructiveButtonLabel}>Discard</Text>
@@ -304,35 +308,35 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 4,
   },
-  primaryButton: {
+  resumeButton: {
     height: 52,
     borderRadius: 14,
     backgroundColor: colors.brandPrimary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  primaryButtonLabel: {
+  resumeButtonLabel: {
     color: colors.brandOnPrimary,
     fontSize: 16,
     fontWeight: '800',
     fontFamily: 'DM Sans',
   },
   finishButton: {
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: colors.primaryStrong,
+    height: 52,
+    borderRadius: 14,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
   finishButtonLabel: {
-    color: colors.brandOnPrimary,
-    fontSize: 15,
+    color: '#65c466',
+    fontSize: 16,
     fontWeight: '800',
-    fontFamily: 'DM Sans',
+    fontFamily: 'DM Sans'
   },
   destructiveButton: {
-    height: 48,
-    borderRadius: 12,
+    height: 52,
+    borderRadius: 14,
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.cardBorder,
@@ -341,8 +345,8 @@ const styles = StyleSheet.create({
   },
   destructiveButtonLabel: {
     color: colors.error,
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '800',
     fontFamily: 'DM Sans',
   },
   bottomSpace: {

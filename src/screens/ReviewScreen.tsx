@@ -101,7 +101,11 @@ export function ReviewScreen({
   return (
     <View style={styles.page}>
       <MobileHeader title="Review session" onBack={onBack} />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={false}
+      >
         <View style={styles.container}>
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Title</Text>
@@ -160,7 +164,7 @@ export function ReviewScreen({
             <Text style={styles.sectionLabel}>Photos</Text>
             <View style={styles.pillRow}>
               <TouchableOpacity style={[styles.pill, styles.outlinePill]} onPress={togglePhoto}>
-                <Text style={styles.pillText}>{photos.length ? 'Remove photo' : 'Add sample photo'}</Text>
+                <Text style={styles.pillText}>{photos.length ? 'Remove photo' : 'Add photo'}</Text>
               </TouchableOpacity>
             </View>
             {photos.length > 0 ? (
@@ -226,6 +230,7 @@ const styles = StyleSheet.create({
     borderColor: colors.cardBorder,
     paddingHorizontal: 12,
     fontSize: 15,
+    fontWeight: 400,
     color: colors.textDark,
     backgroundColor: colors.white,
     fontFamily: 'DM Sans',
@@ -233,6 +238,7 @@ const styles = StyleSheet.create({
   multilineInput: {
     minHeight: 90,
     textAlignVertical: 'top',
+    marginBottom: 42,
   },
   pillRow: {
     flexDirection: 'row',
