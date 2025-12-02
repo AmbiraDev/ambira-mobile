@@ -4,12 +4,13 @@ import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 
 import { MobileHeader } from '@/components/MobileHeader';
 import { SessionCard } from '@/components/SessionCard';
 import { SessionSkeleton } from '@/components/Skeletons';
-import { getActivityById, getUserById } from '@/data/mockData';
+import { useSessionDetail } from '@/hooks/useSessionDetail';
 import type { Session } from '@/types/models';
 import { colors } from '@/theme/colors';
 
 type SessionDetailScreenProps = {
   session?: Session | null;
+  sessionId?: string;
   loading?: boolean;
   onBack: () => void;
   onNavigateHome?: () => void;
@@ -17,16 +18,20 @@ type SessionDetailScreenProps = {
 
 export function SessionDetailScreen({
   session,
+  sessionId,
   loading = false,
   onBack,
   onNavigateHome,
 }: SessionDetailScreenProps): React.JSX.Element {
+  const { session: fetchedSession, user, loading: detailLoading } = useSessionDetail(
+    session?.id ?? sessionId,
+  );
   const [localSession, setLocalSession] = React.useState<Session | null>(session ?? null);
   const [comment, setComment] = React.useState('');
 
   React.useEffect(() => {
-    setLocalSession(session ?? null);
-  }, [session]);
+    setLocalSession(session ?? fetchedSession ?? null);
+  }, [fetchedSession, session]);
 
   const handleSupportToggle = (_id: string, supported: boolean) => {
     setLocalSession((prev) => {
@@ -45,7 +50,7 @@ export function SessionDetailScreen({
     setComment('');
   };
 
-  if (loading) {
+  if (loading || detailLoading) {
     return (
       <View style={styles.page}>
         <MobileHeader title="Session" onBack={onBack} />
@@ -80,8 +85,7 @@ export function SessionDetailScreen({
         <View style={styles.container}>
           <SessionCard
             session={localSession}
-            user={getUserById(localSession.userId)}
-            activity={getActivityById(localSession.activityId)}
+            user={user ?? undefined}
             onSupportToggle={handleSupportToggle}
             onCommentPress={() => {}}
           />

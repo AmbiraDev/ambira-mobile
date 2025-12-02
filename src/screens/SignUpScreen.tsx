@@ -1,4 +1,4 @@
-import type React from 'react';
+import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { colors } from '@/theme/colors';
@@ -9,14 +9,18 @@ type SignUpScreenProps = {
   onLogin?: () => void;
   onBack?: () => void;
   onEmailSignUp?: () => void;
-  onAuthComplete?: () => void;
+  onGoogleSignUp?: () => void;
+  loading?: boolean;
+  error?: string | null;
 };
 
 export function SignUpScreen({
   onLogin,
   onBack,
   onEmailSignUp,
-  onAuthComplete,
+  onGoogleSignUp,
+  loading = false,
+  error,
 }: SignUpScreenProps): React.JSX.Element {
   return (
     <View style={styles.container}>
@@ -31,16 +35,22 @@ export function SignUpScreen({
         </Text>
       </View>
 
-      <TouchableOpacity style={styles.googleButton} onPress={onAuthComplete}>
+      <TouchableOpacity
+        style={styles.googleButton}
+        onPress={onGoogleSignUp}
+        disabled={loading}
+      >
         <View style={styles.googleContent}>
           <Image source={googleIcon} style={styles.googleIcon} />
           <Text style={styles.googleLabel}>Sign Up With Google</Text>
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.emailButton} onPress={onEmailSignUp}>
+      <TouchableOpacity style={styles.emailButton} onPress={onEmailSignUp} disabled={loading}>
         <Text style={styles.emailLabel}>Sign Up With Email</Text>
       </TouchableOpacity>
+
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 }
@@ -130,6 +140,13 @@ const styles = StyleSheet.create({
     color: colors.brandOnPrimary,
     fontSize: 16,
     fontWeight: '800',
+    fontFamily: 'DM Sans',
+  },
+  errorText: {
+    marginTop: 12,
+    color: colors.error,
+    fontSize: 13,
+    fontWeight: '700',
     fontFamily: 'DM Sans',
   },
 });
