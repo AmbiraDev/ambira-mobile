@@ -18,6 +18,18 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   const expoClientId = process.env.EXPO_PUBLIC_GOOGLE_EXPO_CLIENT_ID;
   const reversedClientId = reverseClientId(iosClientId);
 
+  const iosInfoPlist: Record<string, unknown> = {
+    // Required by App Store encryption question; false for standard usage.
+    ITSAppUsesNonExemptEncryption: false,
+  };
+  if (reversedClientId) {
+    iosInfoPlist.CFBundleURLTypes = [
+      {
+        CFBundleURLSchemes: [reversedClientId],
+      },
+    ];
+  }
+
   return {
     ...config,
     name: 'mobile',
@@ -33,18 +45,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       backgroundColor: '#ffffff',
     },
     ios: {
+      bundleIdentifier: 'com.ambira.mobile',
       supportsTablet: true,
-      infoPlist: reversedClientId
-        ? {
-            CFBundleURLTypes: [
-              {
-                CFBundleURLSchemes: [reversedClientId],
-              },
-            ],
-          }
-        : undefined,
+      infoPlist: iosInfoPlist,
     },
     android: {
+      package: 'com.ambira.mobile',
       adaptiveIcon: {
         foregroundImage: './public/adaptive-icon.png',
         backgroundColor: '#ffffff',
