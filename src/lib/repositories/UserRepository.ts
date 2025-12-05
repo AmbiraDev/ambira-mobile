@@ -5,16 +5,21 @@ import type { UserProfile } from '@/types/models';
 
 const COLLECTION = 'users';
 
+const asNumber = (value: unknown): number | undefined =>
+  typeof value === 'number' ? value : undefined;
+
 const mapUserProfile = (
-  snapshot: { id: string; data: () => Record<string, any> | undefined },
+  snapshot: { id: string; data: () => Record<string, unknown> | undefined },
   currentUserId?: string,
 ): UserProfile | null => {
   const data = snapshot.data();
   if (!data) return null;
 
-  const streak = (data.streak as Record<string, any> | undefined) ?? {};
-  const totalSeconds = data.totalSeconds as number | undefined;
-  const totalSessions = data.totalSessions ?? data.sessionCount ?? data.stats?.sessions;
+  const streak = (data.streak as Record<string, unknown> | undefined) ?? {};
+  const stats = data.stats as Record<string, unknown> | undefined;
+  const totalSeconds = asNumber(data.totalSeconds);
+  const totalSessions =
+    asNumber(data.totalSessions) ?? asNumber(data.sessionCount) ?? asNumber(stats?.sessions);
 
   return {
     id: snapshot.id,
@@ -26,17 +31,13 @@ const mapUserProfile = (
     avatar: data.profilePicture as string | undefined,
     location: data.location as string | undefined,
     bio: data.bio as string | undefined,
-    followers: (data.followerCount as number | undefined) ?? 0,
-    following: (data.followingCount as number | undefined) ?? 0,
+    followers: asNumber(data.followerCount) ?? 0,
+    following: asNumber(data.followingCount) ?? 0,
     totalHours:
-      (data.totalHours as number | undefined) ??
-      (typeof totalSeconds === 'number' ? totalSeconds / 3600 : 0),
+      asNumber(data.totalHours) ?? (typeof totalSeconds === 'number' ? totalSeconds / 3600 : 0),
     totalSessions: typeof totalSessions === 'number' ? totalSessions : 0,
-    streakDays:
-      (data.currentStreak as number | undefined) ??
-      (streak.current as number | undefined) ??
-      0,
-    bestStreak: (data.bestStreak as number | undefined) ?? (streak.best as number | undefined),
+    streakDays: asNumber(data.currentStreak) ?? asNumber(streak.current) ?? 0,
+    bestStreak: asNumber(data.bestStreak) ?? asNumber(streak.best),
     isSelf: currentUserId ? snapshot.id === currentUserId : undefined,
   };
 };

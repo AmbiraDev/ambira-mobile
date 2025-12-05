@@ -6,13 +6,15 @@ import {
   type FirebaseApp,
   type FirebaseOptions,
 } from 'firebase/app';
-import { getAuth, initializeAuth, type Auth } from 'firebase/auth';
+import { getAuth, initializeAuth, type Auth, type Persistence } from 'firebase/auth';
+
+type ReactNativePersistence = (storage: unknown) => Persistence;
+
+const { getReactNativePersistence }: { getReactNativePersistence: ReactNativePersistence } =
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('@firebase/auth/dist/rn/index.js');
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { getReactNativePersistence }: { getReactNativePersistence: (storage: any) => any } =
-  require('@firebase/auth/dist/rn/index.js');
 
 const isFirebaseConfigured = Boolean(
   process.env.EXPO_PUBLIC_FIREBASE_API_KEY &&
@@ -26,9 +28,10 @@ const isFirebaseConfigured = Boolean(
 const createUnavailableProxy = <T extends object>(serviceName: string) =>
   new Proxy({} as T, {
     get() {
-      throw new Error(
-        `[Firebase] Attempted to access ${serviceName} before Firebase was configured. Ensure EXPO_PUBLIC_FIREBASE_* env vars are set.`,
-      );
+      const message =
+        `[Firebase] Attempted to access ${serviceName} before Firebase was configured.` +
+        ' Ensure EXPO_PUBLIC_FIREBASE_* env vars are set.';
+      throw new Error(message);
     },
   });
 
@@ -54,7 +57,7 @@ if (isFirebaseConfigured) {
     authInstance = initializeAuth(appInstance, {
       persistence: getReactNativePersistence(AsyncStorage),
     });
-  } catch (_error) {
+  } catch {
     // initializeAuth throws if auth has already been created; fall back to the existing instance.
     authInstance = getAuth(appInstance);
   }

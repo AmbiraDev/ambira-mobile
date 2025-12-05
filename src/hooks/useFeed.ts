@@ -80,7 +80,7 @@ export function useFeed(
     } finally {
       setLoading(false);
     }
-  }, [filter, user?.uid]);
+  }, [filter, user?.displayName, user?.email, user?.uid]);
 
   React.useEffect(() => {
     fetchFeed();

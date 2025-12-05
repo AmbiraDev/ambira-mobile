@@ -48,16 +48,16 @@ function AppContent(): React.JSX.Element {
     currentUserProfile ||
     (user
       ? {
-          id: user.uid,
-          name: user.displayName ?? 'You',
-          handle: user.email?.split('@')[0] ?? 'you',
-          followers: 0,
-          following: 0,
-          totalHours: 0,
-          totalSessions: 0,
-          streakDays: 0,
-          isSelf: true,
-        }
+        id: user.uid,
+        name: user.displayName ?? 'You',
+        handle: user.email?.split('@')[0] ?? 'you',
+        followers: 0,
+        following: 0,
+        totalHours: 0,
+        totalSessions: 0,
+        streakDays: 0,
+        isSelf: true,
+      }
       : null);
 
   const handleEmailLogin = async (email: string, password: string) => {

@@ -37,8 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     Boolean(process.env.EXPO_PUBLIC_GOOGLE_EXPO_CLIENT_ID);
 
   const redirectUri =
-    process.env.EXPO_PUBLIC_GOOGLE_REDIRECT_URI ||
-    AuthSession.makeRedirectUri({ useProxy: true, projectNameForProxy: 'mobile' });
+    process.env.EXPO_PUBLIC_GOOGLE_REDIRECT_URI || AuthSession.makeRedirectUri();
 
   React.useEffect(() => {
     if (!redirectUri.startsWith('https://auth.expo.io/')) {
@@ -48,20 +47,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     }
   }, [redirectUri]);
 
+  const googleClientId =
+    process.env.EXPO_PUBLIC_GOOGLE_EXPO_CLIENT_ID ??
+    process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ??
+    process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+
+  const googleConfig = googleClientId
+    ? {
+      clientId: googleClientId,
+      redirectUri,
+      androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    }
+    : undefined;
+
   const [googleRequest, googleResponse, promptGoogle] = Google.useIdTokenAuthRequest(
-    hasGoogleIds
-      ? {
-          clientId:
-            process.env.EXPO_PUBLIC_GOOGLE_EXPO_CLIENT_ID ??
-            process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID ??
-            process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-          redirectUri,
-          useProxy: true,
-          expoClientId: process.env.EXPO_PUBLIC_GOOGLE_EXPO_CLIENT_ID,
-          androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
-          iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-        }
-      : {},
+    hasGoogleIds && googleConfig ? googleConfig : {},
   );
 
   React.useEffect(() => {
@@ -112,8 +114,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
     if (!googleRequest) {
       throw new Error('Google Sign-In is not configured.');
     }
-    await promptGoogle({ useProxy: true, redirectUri });
-  }, [googleRequest, promptGoogle, redirectUri]);
+    await promptGoogle();
+  }, [googleRequest, promptGoogle]);
 
   const value: AuthContextValue = {
     user,

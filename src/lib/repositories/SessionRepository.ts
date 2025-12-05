@@ -19,50 +19,73 @@ import type { Session, Visibility } from '@/types/models';
 const COLLECTION = 'sessions';
 const DEFAULT_LIMIT = 50;
 
-const timestampToIso = (value?: Timestamp | Date | string | null): string => {
+type SessionSnapshot = {
+  id: string;
+  data: () => Record<string, unknown> | undefined;
+};
+
+const asString = (value: unknown): string | undefined =>
+  typeof value === 'string' ? value : undefined;
+
+const asStringArray = (value: unknown): string[] | undefined =>
+  Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string')
+    : undefined;
+
+const asNumber = (value: unknown): number | undefined =>
+  typeof value === 'number' ? value : undefined;
+
+const asVisibility = (value: unknown): Visibility | undefined =>
+  value === 'everyone' || value === 'followers' || value === 'private' ? value : undefined;
+
+const asFeeling = (value: unknown): Session['feeling'] | undefined =>
+  value === 'energized' || value === 'neutral' || value === 'tired' ? value : undefined;
+
+const timestampToIso = (value: unknown): string => {
   if (!value) return new Date().toISOString();
   if (value instanceof Date) return value.toISOString();
+  if (typeof value === 'string') return new Date(value).toISOString();
   if (typeof (value as Timestamp).toDate === 'function') {
     return (value as Timestamp).toDate().toISOString();
   }
-  if (typeof value === 'string') return new Date(value).toISOString();
   return new Date().toISOString();
 };
 
-const mapSession = (snapshot: { id: string; data: () => Record<string, any> | undefined }): Session | null => {
+const mapSession = (snapshot: SessionSnapshot): Session | null => {
   const data = snapshot.data();
   if (!data) return null;
 
   const viewerId = auth?.currentUser?.uid;
   const createdAt = timestampToIso(data.createdAt);
-  const userId = data.userId as string | undefined;
+  const userId = asString(data.userId);
   if (!userId) return null;
 
-  const visibility = (data.visibility as Visibility) ?? 'everyone';
+  const visibility = asVisibility(data.visibility) ?? 'everyone';
+  const durationSeconds = asNumber(data.duration) ?? 0;
   const durationMinutes = Math.max(
     0,
-    Math.round(((data.duration as number | undefined) ?? 0) / 60),
+    Math.round(durationSeconds / 60),
   );
-  const supportedBy = (data.supportedBy as string[] | undefined) ?? [];
+  const supportedBy = asStringArray(data.supportedBy) ?? [];
 
   return {
     id: snapshot.id,
     userId,
-    title: (data.title as string | undefined) ?? 'Session',
-    description: data.description,
-    activityId: data.activityId ?? data.projectId ?? 'build',
-    project: data.projectId,
+    title: asString(data.title) ?? 'Session',
+    description: asString(data.description),
+    activityId: asString(data.activityId) ?? asString(data.projectId) ?? 'build',
+    project: asString(data.projectId),
     durationMinutes: durationMinutes || 0,
-    feeling: data.howFelt,
+    feeling: asFeeling(data.howFelt),
     visibility,
     createdAt,
-    media: (data.images as string[] | undefined) ?? [],
-    supports: (data.supportCount as number | undefined) ?? 0,
-    comments: (data.commentCount as number | undefined) ?? 0,
-    shares: (data.shareCount as number | undefined) ?? 0,
+    media: asStringArray(data.images) ?? [],
+    supports: asNumber(data.supportCount) ?? 0,
+    comments: asNumber(data.commentCount) ?? 0,
+    shares: asNumber(data.shareCount) ?? 0,
     supported: viewerId ? supportedBy.includes(viewerId) : false,
     isOwner: viewerId ? viewerId === userId : false,
-    privateNotes: data.privateNotes,
+    privateNotes: asString(data.privateNotes),
   };
 };
 

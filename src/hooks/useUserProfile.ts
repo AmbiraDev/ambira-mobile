@@ -47,11 +47,11 @@ export function useUserProfile(
 
       const mergedProfile: UserProfile | null = userProfile
         ? {
-            ...userProfile,
-            totalSessions: userProfile.totalSessions || userSessions.length,
-            totalHours: userProfile.totalHours || computedHours,
-            isSelf: authUser?.uid === userId,
-          }
+          ...userProfile,
+          totalSessions: userProfile.totalSessions || userSessions.length,
+          totalHours: userProfile.totalHours || computedHours,
+          isSelf: authUser?.uid === userId,
+        }
         : null;
 
       setProfile(
