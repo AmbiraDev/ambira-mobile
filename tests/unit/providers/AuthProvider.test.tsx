@@ -17,7 +17,8 @@ jest.mock('@/lib/firebase', () => ({
 jest.mock('firebase/auth', () => ({
   onAuthStateChanged: (...args: unknown[]) => mockOnAuthStateChanged(...args),
   signInWithEmailAndPassword: (...args: unknown[]) => mockSignInWithEmailAndPassword(...args),
-  createUserWithEmailAndPassword: (...args: unknown[]) => mockCreateUserWithEmailAndPassword(...args),
+  createUserWithEmailAndPassword:
+    (...args: unknown[]) => mockCreateUserWithEmailAndPassword(...args),
   updateProfile: (...args: unknown[]) => mockUpdateProfile(...args),
   signOut: (...args: unknown[]) => mockSignOut(...args),
   GoogleAuthProvider: { credential: jest.fn(() => ({})) },
@@ -45,7 +46,11 @@ describe('AuthProvider', () => {
       await result.current.signInWithEmail('  user@example.com  ', 'secret');
     });
 
-    expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(expect.anything(), 'user@example.com', 'secret');
+    expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith(
+      expect.anything(),
+      'user@example.com',
+      'secret',
+    );
   });
 
   test('signUpWithEmail updates display name when provided', async () => {

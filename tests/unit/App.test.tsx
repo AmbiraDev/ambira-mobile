@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { render, waitFor } from '@testing-library/react-native';
 
 import App from '@/App';
 import { sampleSession, sampleUser } from '../fixtures/data';
