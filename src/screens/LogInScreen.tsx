@@ -1,4 +1,4 @@
-import type React from 'react';
+import React from 'react';
 import {
   Image,
   ScrollView,
@@ -15,10 +15,27 @@ import googleIcon from '../../public/google.png';
 
 type LogInScreenProps = {
   onBack?: () => void;
-  onAuthComplete?: () => void;
+  onSubmit?: (email: string, password: string) => void;
+  onGoogle?: () => void;
+  loading?: boolean;
+  error?: string | null;
 };
 
-export function LogInScreen({ onBack, onAuthComplete }: LogInScreenProps): React.JSX.Element {
+export function LogInScreen({
+  onBack,
+  onSubmit,
+  onGoogle,
+  loading = false,
+  error,
+}: LogInScreenProps): React.JSX.Element {
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+
+  const handleSubmit = () => {
+    if (!email || !password) return;
+    onSubmit?.(email, password);
+  };
+
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -36,7 +53,7 @@ export function LogInScreen({ onBack, onAuthComplete }: LogInScreenProps): React
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.googleButton} onPress={onAuthComplete}>
+        <TouchableOpacity style={styles.googleButton} onPress={onGoogle} disabled={loading}>
           <View style={styles.googleContent}>
             <Image source={googleIcon} style={styles.googleIcon} />
             <Text style={styles.googleLabel}>Continue with Google</Text>
@@ -55,8 +72,10 @@ export function LogInScreen({ onBack, onAuthComplete }: LogInScreenProps): React
             style={styles.input}
             placeholder="Enter your email"
             placeholderTextColor="#A8B2C3"
-            keyboardType='email-address'
+            keyboardType="email-address"
             autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
 
@@ -67,11 +86,19 @@ export function LogInScreen({ onBack, onAuthComplete }: LogInScreenProps): React
             placeholder="Enter your password"
             placeholderTextColor="#A8B2C3"
             secureTextEntry
+            value={password}
+            onChangeText={setPassword}
           />
         </View>
 
-        <TouchableOpacity style={styles.submitButton} onPress={onAuthComplete}>
-          <Text style={styles.submitLabel}>Sign In</Text>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        <TouchableOpacity
+          style={[styles.submitButton, loading && styles.buttonDisabled]}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          <Text style={styles.submitLabel}>{loading ? 'Signing In...' : 'Sign In'}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -183,6 +210,13 @@ const styles = StyleSheet.create({
     color: colors.textDark,
     backgroundColor: colors.white,
   },
+  errorText: {
+    marginTop: 10,
+    color: colors.error,
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: 'DM Sans',
+  },
   submitButton: {
     marginTop: 24,
     height: 52,
@@ -190,6 +224,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryStrong,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.75,
   },
   submitLabel: {
     color: colors.brandOnPrimary,

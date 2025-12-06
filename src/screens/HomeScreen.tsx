@@ -12,14 +12,14 @@ import {
 import { MobileHeader } from '@/components/MobileHeader';
 import { SessionCard } from '@/components/SessionCard';
 import { SessionSkeleton } from '@/components/Skeletons';
-import { activityBreakdown, getActivityById, getUserById } from '@/data/mockData';
+import { DEFAULT_ACTIVITIES } from '@/data/activities';
+import { useFeed } from '@/hooks/useFeed';
 import type { Session, UserProfile } from '@/types/models';
 import { colors } from '@/theme/colors';
 
 type HomeScreenProps = {
-  currentUser: UserProfile;
-  sessions: Session[];
-  followingIds: string[];
+  currentUser: UserProfile | null;
+  refreshToken?: number;
   onOpenSession: (session: Session) => void;
   onOpenProfile?: (userId: string) => void;
   onOpenNotifications?: () => void;
@@ -27,8 +27,7 @@ type HomeScreenProps = {
 
 export function HomeScreen({
   currentUser,
-  sessions,
-  followingIds,
+  refreshToken,
   onOpenSession,
   onOpenProfile,
   onOpenNotifications,
@@ -37,25 +36,34 @@ export function HomeScreen({
   const isWide = width >= 900;
 
   const [filter, setFilter] = React.useState<'following' | 'all'>('following');
-  const [loading, setLoading] = React.useState<boolean>(true);
+  const { data: sessions, usersById, loading, error } = useFeed(filter, {
+    refreshToken,
+  });
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, [filter]);
+  const activityBreakdown = React.useMemo(() => {
+    const totals = sessions.reduce<Record<string, number>>((acc, session) => {
+      acc[session.activityId] = (acc[session.activityId] ?? 0) + session.durationMinutes;
+      return acc;
+    }, {});
 
-  const feedSessions = React.useMemo(() => {
-    const base =
-      filter === 'all'
-        ? sessions
-        : sessions.filter(
-          (session) => followingIds.includes(session.userId) || session.userId === currentUser.id,
-        );
+    const totalMinutes = Object.values(totals).reduce((sum, value) => sum + value, 0);
+    if (totalMinutes === 0) {
+      return DEFAULT_ACTIVITIES.map((activity) => ({
+        activityId: activity.id,
+        label: activity.name,
+        percent: 0,
+      }));
+    }
 
-    return [...base].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-  }, [filter, sessions, followingIds, currentUser.id]);
+    return Object.entries(totals).map(([activityId, minutes]) => {
+      const activity = DEFAULT_ACTIVITIES.find((a) => a.id === activityId);
+      return {
+        activityId,
+        label: activity?.name ?? activityId,
+        percent: Math.round((minutes / totalMinutes) * 100),
+      };
+    });
+  }, [sessions]);
 
   const renderFeed = () => {
     if (loading) {
@@ -67,7 +75,20 @@ export function HomeScreen({
       );
     }
 
-    if (feedSessions.length === 0) {
+    if (error) {
+      return (
+        <View style={[styles.cardStack, styles.emptyState]}>
+          <Text style={styles.emptyTitle}>Could not load feed</Text>
+          <Text style={styles.emptyCopy}>{error}</Text>
+        </View>
+      );
+    }
+
+    if (!currentUser) {
+      return null;
+    }
+
+    if (sessions.length === 0) {
       return (
         <View style={[styles.cardStack, styles.emptyState]}>
           <Text style={styles.emptyTitle}>No sessions yet</Text>
@@ -83,12 +104,11 @@ export function HomeScreen({
 
     return (
       <View style={styles.cardStack}>
-        {feedSessions.map((session) => (
+        {sessions.map((session) => (
           <SessionCard
             key={session.id}
             session={session}
-            user={getUserById(session.userId)}
-            activity={getActivityById(session.activityId)}
+            user={usersById[session.userId]}
             onPress={() => onOpenSession(session)}
             onUserPress={onOpenProfile}
           />
@@ -135,7 +155,7 @@ export function HomeScreen({
           (
             <View style={styles.streakChip}>
               <Flame size={16} color={colors.brandPrimary} fill={colors.brandPrimary} />
-              <Text style={styles.streakText}>{currentUser.streakDays}</Text>
+              <Text style={styles.streakText}>{currentUser?.streakDays ?? 0}</Text>
             </View>
           )
         }

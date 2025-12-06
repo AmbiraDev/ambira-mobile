@@ -4,7 +4,7 @@ import type { LucideIcon } from 'lucide-react-native';
 import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { MobileHeader } from '@/components/MobileHeader';
-import { mockActivities } from '@/data/mockData';
+import { DEFAULT_ACTIVITIES } from '@/data/activities';
 import type { Activity, Session, Visibility } from '@/types/models';
 import { colors } from '@/theme/colors';
 
@@ -137,7 +137,7 @@ export function ReviewScreen({
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.pillRow}
             >
-              {mockActivities.map((activity) => {
+              {DEFAULT_ACTIVITIES.map((activity) => {
                 const active = activityId === activity.id;
                 const ActivityIcon = ACTIVITY_ICONS[activity.id] ?? BookOpen;
                 return (

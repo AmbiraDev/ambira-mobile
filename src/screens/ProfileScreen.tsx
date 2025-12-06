@@ -6,19 +6,17 @@ import { MobileHeader } from '@/components/MobileHeader';
 import { SessionCard } from '@/components/SessionCard';
 import { SessionSkeleton } from '@/components/Skeletons';
 import { StreakCard } from '@/components/StreakCard';
-import {
-  achievements as achievementData,
-  activityBreakdown,
-  followingList as followingSeed,
-  getActivityById,
-  getUserById,
-} from '@/data/mockData';
-import type { Session, UserProfile } from '@/types/models';
+import { DEFAULT_ACHIEVEMENTS } from '@/data/achievements';
+import { DEFAULT_ACTIVITIES } from '@/data/activities';
+import { useUserProfile } from '@/hooks/useUserProfile';
+import { SocialGraphRepository } from '@/lib/repositories/SocialGraphRepository';
+import { UserRepository } from '@/lib/repositories/UserRepository';
+import type { FollowingUser, Session } from '@/types/models';
 import { colors } from '@/theme/colors';
 
 type ProfileScreenProps = {
-  user: UserProfile;
-  sessions: Session[];
+  userId?: string | null;
+  currentUserId?: string | null;
   loading?: boolean;
   onBack?: () => void;
   onSelectSession?: (session: Session) => void;
@@ -27,21 +25,60 @@ type ProfileScreenProps = {
 type TabKey = 'overview' | 'achievements' | 'following' | 'sessions';
 
 export function ProfileScreen({
-  user,
-  sessions,
+  userId,
+  currentUserId,
   loading = false,
   onBack,
   onSelectSession,
 }: ProfileScreenProps): React.JSX.Element {
   const [tab, setTab] = React.useState<TabKey>('overview');
-  const [following, setFollowing] = React.useState(followingSeed);
+  const [following, setFollowing] = React.useState<FollowingUser[]>([]);
+
+  const { profile: user, sessions, loading: profileLoading } = useUserProfile(userId ?? undefined);
+  const combinedLoading = loading || profileLoading;
+  const viewerId = currentUserId ?? undefined;
+
+  const socialRepo = React.useMemo(() => new SocialGraphRepository(), []);
+  const userRepo = React.useMemo(() => new UserRepository(), []);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    const loadFollowing = async () => {
+      if (!user?.id) {
+        setFollowing([]);
+        return;
+      }
+      try {
+        const ids = await socialRepo.getFollowingIds(user.id);
+        if (cancelled) return;
+        const profiles = await userRepo.getByIds(ids, viewerId);
+        if (cancelled) return;
+        const next: FollowingUser[] = Object.values(profiles).map((profile) => ({
+          id: profile.id,
+          name: profile.name,
+          handle: profile.handle,
+          avatar: profile.avatar,
+          isFollowing: true,
+          location: profile.location,
+        }));
+        setFollowing(next);
+      } catch {
+        setFollowing([]);
+      }
+    };
+
+    loadFollowing();
+    return () => {
+      cancelled = true;
+    };
+  }, [socialRepo, user?.id, userRepo, viewerId]);
 
   const userSessions = React.useMemo(
     () =>
       sessions
-        .filter((session) => session.userId === user.id)
+        .filter((session) => session.userId === user?.id)
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
-    [sessions, user.id],
+    [sessions, user?.id],
   );
 
   const toggleFollow = (id: string) => {
@@ -51,6 +88,31 @@ export function ProfileScreen({
       ),
     );
   };
+
+  const activityBreakdown = React.useMemo(() => {
+    const totals = userSessions.reduce<Record<string, number>>((acc, session) => {
+      acc[session.activityId] = (acc[session.activityId] ?? 0) + session.durationMinutes;
+      return acc;
+    }, {});
+
+    const totalMinutes = Object.values(totals).reduce((sum, value) => sum + value, 0);
+    if (totalMinutes === 0) {
+      return DEFAULT_ACTIVITIES.map((activity) => ({
+        activityId: activity.id,
+        label: activity.name,
+        percent: 0,
+      }));
+    }
+
+    return Object.entries(totals).map(([activityId, minutes]) => {
+      const activity = DEFAULT_ACTIVITIES.find((a) => a.id === activityId);
+      return {
+        activityId,
+        label: activity?.name ?? activityId,
+        percent: Math.round((minutes / totalMinutes) * 100),
+      };
+    });
+  }, [userSessions]);
 
   const renderActivityBreakdown = () => (
     <View style={styles.card}>
@@ -68,7 +130,7 @@ export function ProfileScreen({
   );
 
   const renderOverview = () => {
-    if (loading) {
+    if (combinedLoading) {
       return (
         <View style={styles.stack}>
           <SessionSkeleton />
@@ -78,7 +140,7 @@ export function ProfileScreen({
 
     return (
       <View style={styles.stack}>
-        <StreakCard current={user.streakDays} best={user.bestStreak} />
+        <StreakCard current={user?.streakDays ?? 0} best={user?.bestStreak} />
         {renderActivityBreakdown()}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Recent sessions</Text>
@@ -86,8 +148,7 @@ export function ProfileScreen({
             <SessionCard
               key={session.id}
               session={session}
-              user={getUserById(session.userId)}
-              activity={getActivityById(session.activityId)}
+              user={user ?? undefined}
               onPress={() => onSelectSession?.(session)}
             />
           ))}
@@ -100,13 +161,13 @@ export function ProfileScreen({
     <View style={styles.card}>
       <Text style={styles.cardTitle}>Achievements</Text>
       <View style={styles.achievementGrid}>
-        {achievementData.map((item) => (
+        {DEFAULT_ACHIEVEMENTS.map((item) => (
           <View key={item.id} style={styles.achievement}>
             <Text style={styles.achievementLabel}>{item.label}</Text>
             <Text style={styles.achievementCopy}>{item.description}</Text>
           </View>
         ))}
-        {achievementData.length === 0 ? (
+        {DEFAULT_ACHIEVEMENTS.length === 0 ? (
           <Text style={styles.achievementCopy}>No badges yet. Keep logging sessions.</Text>
         ) : null}
       </View>
@@ -135,6 +196,9 @@ export function ProfileScreen({
           </TouchableOpacity>
         </View>
       ))}
+      {following.length === 0 ? (
+        <Text style={styles.emptyCopy}>No following data yet.</Text>
+      ) : null}
     </View>
   );
 
@@ -144,8 +208,7 @@ export function ProfileScreen({
         <SessionCard
           key={session.id}
           session={session}
-          user={getUserById(session.userId)}
-          activity={getActivityById(session.activityId)}
+          user={user ?? undefined}
           onPress={() => onSelectSession?.(session)}
         />
       ))}
@@ -158,7 +221,18 @@ export function ProfileScreen({
     </View>
   );
 
-  const isSelf = user.isSelf;
+  const isSelf = user?.isSelf;
+
+  if (!user) {
+    return (
+      <View style={styles.page}>
+        <MobileHeader title="Profile" onBack={onBack} />
+        <View style={[styles.body, styles.emptyCard]}>
+          <Text style={styles.emptyTitle}>Profile not found</Text>
+        </View>
+      </View>
+    );
+  }
 
   const tabContent = (() => {
     if (tab === 'overview') return renderOverview();
@@ -204,7 +278,7 @@ export function ProfileScreen({
             </View>
             <View style={styles.stat}>
               <Text style={styles.statLabel}>Total hours</Text>
-              <Text style={styles.statValue}>{user.totalHours}</Text>
+              <Text style={styles.statValue}>{user.totalHours.toFixed(1)}</Text>
             </View>
             <View style={styles.stat}>
               <Text style={styles.statLabel}>Sessions</Text>

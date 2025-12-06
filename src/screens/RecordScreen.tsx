@@ -4,7 +4,7 @@ import type { LucideIcon } from 'lucide-react-native';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { MobileHeader } from '@/components/MobileHeader';
-import { mockActivities } from '@/data/mockData';
+import { DEFAULT_ACTIVITIES } from '@/data/activities';
 import type { Activity, Visibility } from '@/types/models';
 import type { ReviewDraft } from '@/screens/ReviewScreen';
 import { colors } from '@/theme/colors';
@@ -30,7 +30,7 @@ export function RecordScreen({
   defaultVisibility = 'everyone',
 }: RecordScreenProps): React.JSX.Element {
   const [selectedActivity, setSelectedActivity] = React.useState<Activity | null>(
-    mockActivities[0],
+    DEFAULT_ACTIVITIES[0],
   );
   const [timerState, setTimerState] = React.useState<TimerState>('idle');
   const [elapsedMs, setElapsedMs] = React.useState<number>(0);
@@ -164,7 +164,7 @@ export function RecordScreen({
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.pillRow}
             >
-              {mockActivities.map((activity) => {
+              {DEFAULT_ACTIVITIES.map((activity) => {
                 const active = selectedActivity?.id === activity.id;
                 const ActivityIcon = ACTIVITY_ICONS[activity.id] ?? BookOpen;
                 return (

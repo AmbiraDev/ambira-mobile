@@ -23,11 +23,9 @@ src/
 
 
 **How to build the software:**
-npx expo start (starts development server through expo with more options):
-“i” to start ios simulator
-“a” to start android simulator
-“r” to refresh
-Scan the QR code to use the Expo app for development
+Use the EAS `development` profile in `eas.json` to generate platform-specific development clients that mirror the native runtime (Expo Go is no longer enough when native changes land). Prereqs: install dependencies, copy `.env.example` to `.env`, and ensure the EAS CLI is available (`npx eas --version`, version 13.2.0+). Build once per platform (rebuild when native dependencies or `app.config.ts` change):
+- iOS simulator: `npx eas build --profile development --platform ios` (creates a simulator `.app`).
+Install the artifact on your simulator/emulator, then start the bundler with `npx expo start --dev-client` and launch the installed dev client to load the app.
 
 **How to test the software:**
 To test the software, run the suite at three layers. For fast logic checks, execute unit tests with Jest (from the repo root) targeting tests/unit, which validates utilities, hooks, and providers using lightweight, deterministic mocks stored in tests/mocks. Next, run integration tests (Jest + Testing Library for web and React Native) from tests/integration to verify state transitions, routing guards, and cross-context behavior with mocked Firebase backends and shared fixtures in tests/fixtures. Finally, validate real user journeys with end-to-end tests: use Playwright for the web app (tests/e2e) and Detox for the mobile app (tests/e2e), preferring role-based selectors or data-testid/testID. For flows that touch backend data, rely on the Firebase Emulator Suite or seeded local data; capture traces, screenshots, and logs on failure to aid debugging. In CI (GitHub Actions), builds run typecheck and lint, execute all unit and integration tests, and then a smoke subset of E2E tests, uploading artifacts so regressions are visible on pull requests.

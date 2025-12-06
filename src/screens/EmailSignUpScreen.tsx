@@ -1,4 +1,4 @@
-import type React from 'react';
+import React from 'react';
 import {
   Image,
   ScrollView,
@@ -14,10 +14,33 @@ import blueOnWhite from '../../public/blue-on-white.png';
 
 type EmailSignUpScreenProps = {
   onBack?: () => void;
-  onSubmit?: () => void;
+  onSubmit?: (email: string, password: string, name?: string) => void;
+  loading?: boolean;
+  error?: string | null;
 };
 
-export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps): React.JSX.Element {
+export function EmailSignUpScreen({
+  onBack,
+  onSubmit,
+  loading = false,
+  error,
+}: EmailSignUpScreenProps): React.JSX.Element {
+  const [fullName, setFullName] = React.useState('');
+  const [username, setUsername] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [localError, setLocalError] = React.useState<string | null>(null);
+
+  const handleSubmit = () => {
+    if (password !== confirmPassword) {
+      setLocalError('Passwords do not match');
+      return;
+    }
+    setLocalError(null);
+    onSubmit?.(email, password, fullName || username);
+  };
+
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -41,6 +64,8 @@ export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps):
             style={styles.input}
             placeholder="Enter your full name"
             placeholderTextColor={colors.placeholder}
+            value={fullName}
+            onChangeText={setFullName}
           />
         </View>
 
@@ -50,6 +75,8 @@ export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps):
             style={styles.input}
             placeholder="Choose a username"
             placeholderTextColor={colors.placeholder}
+            value={username}
+            onChangeText={setUsername}
           />
         </View>
 
@@ -61,6 +88,8 @@ export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps):
             keyboardType="email-address"
             autoCapitalize="none"
             placeholderTextColor={colors.placeholder}
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
 
@@ -71,6 +100,8 @@ export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps):
             placeholder="Create a password"
             secureTextEntry
             placeholderTextColor={colors.placeholder}
+            value={password}
+            onChangeText={setPassword}
           />
         </View>
 
@@ -81,11 +112,20 @@ export function EmailSignUpScreen({ onBack, onSubmit }: EmailSignUpScreenProps):
             placeholder="Confirm your password"
             secureTextEntry
             placeholderTextColor={colors.placeholder}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
           />
         </View>
 
-        <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
-          <Text style={styles.submitLabel}>Create account</Text>
+        {localError ? <Text style={styles.errorText}>{localError}</Text> : null}
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        <TouchableOpacity
+          style={[styles.submitButton, loading && styles.buttonDisabled]}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          <Text style={styles.submitLabel}>{loading ? 'Creating...' : 'Create account'}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -153,6 +193,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     fontFamily: 'DM Sans',
   },
+  errorText: {
+    marginTop: 10,
+    color: colors.error,
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: 'DM Sans',
+  },
   submitButton: {
     marginTop: 24,
     height: 52,
@@ -160,6 +207,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryStrong,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.75,
   },
   submitLabel: {
     color: colors.brandOnPrimary,
