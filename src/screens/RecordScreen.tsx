@@ -201,7 +201,7 @@ export function RecordScreen({
                 <Text style={styles.resumeButtonLabel}>Pause</Text>
               </TouchableOpacity>
             ) : null}
-            {timerState === 'paused' && elapsedMs > 0 ? (
+            {timerState === 'paused' ? (
               <>
                 <TouchableOpacity style={styles.resumeButton} onPress={resumeTimer}>
                   <Text style={styles.resumeButtonLabel}>Resume</Text>
