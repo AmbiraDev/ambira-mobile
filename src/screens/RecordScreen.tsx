@@ -133,7 +133,7 @@ export function RecordScreen({
       intervalRef.current = null;
     }
     lastTickRef.current = null;
-    const minutesFromTimer = Math.max(10, Math.round(elapsedMs / 60000));
+    const minutesFromTimer = Math.round(elapsedMs / 60000);
     const draft: ReviewDraft = {
       title: selectedActivity.name,
       activityId: selectedActivity.id,
