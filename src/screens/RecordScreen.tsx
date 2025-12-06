@@ -88,12 +88,17 @@ export function RecordScreen({
       return;
     }
     setError(null);
-    lastTickRef.current = Date.now();
     setTimerState('running');
+    lastTickRef.current = Date.now();
     startInterval();
   };
 
   const pauseTimer = () => {
+    if (lastTickRef.current) {
+      const now = Date.now();
+      const delta = now - lastTickRef.current;
+      setElapsedMs((prev) => prev + delta);
+    }
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -201,7 +206,7 @@ export function RecordScreen({
                 <Text style={styles.resumeButtonLabel}>Pause</Text>
               </TouchableOpacity>
             ) : null}
-            {timerState === 'paused' && elapsedMs > 0 ? (
+            {timerState === 'paused' ? (
               <>
                 <TouchableOpacity style={styles.resumeButton} onPress={resumeTimer}>
                   <Text style={styles.resumeButtonLabel}>Resume</Text>
