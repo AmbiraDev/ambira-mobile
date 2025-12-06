@@ -43,7 +43,7 @@ export function ReviewScreen({
   onDiscard,
   onSave,
 }: ReviewScreenProps): React.JSX.Element {
-  const clampDuration = (value: number) => Math.min(180, Math.max(10, value));
+  const clampDuration = (value: number) => value;
   const [title, setTitle] = React.useState(draft.title || 'Untitled session');
   const [description, setDescription] = React.useState(draft.description ?? '');
   const [activityId, setActivityId] = React.useState<Activity['id']>(draft.activityId);
