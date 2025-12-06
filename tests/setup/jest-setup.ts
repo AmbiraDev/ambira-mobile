@@ -1,4 +1,5 @@
 import React from 'react';
+import { NativeModules } from 'react-native';
 import '@testing-library/jest-native/extend-expect';
 
 jest.mock('react-native/Libraries/TurboModule/TurboModuleRegistry', () => ({
@@ -69,7 +70,6 @@ jest.mock('lucide-react-native', () => {
   };
 });
 
-const { NativeModules } = require('react-native');
 if (!NativeModules.DeviceInfo) {
   NativeModules.DeviceInfo = {
     getConstants: () => ({
@@ -80,13 +80,22 @@ if (!NativeModules.DeviceInfo) {
   };
 }
 
-if (!global.setImmediate) {
-  global.setImmediate = (fn: (...args: unknown[]) => void, ...args: unknown[]) =>
-    setTimeout(fn, 0, ...args);
+const globalPolyfill = global as typeof globalThis & {
+  setImmediate?: typeof setImmediate;
+  clearImmediate?: typeof clearImmediate;
+};
+
+if (!globalPolyfill.setImmediate) {
+  globalPolyfill.setImmediate = ((fn: (...args: unknown[]) => void, ...args: unknown[]) =>
+    setTimeout(fn, 0, ...args) as unknown as NodeJS.Immediate) as typeof setImmediate;
 }
 
-if (!global.clearImmediate) {
-  global.clearImmediate = (id: NodeJS.Timeout) => clearTimeout(id);
+if (!globalPolyfill.clearImmediate) {
+  globalPolyfill.clearImmediate = ((
+    id: ReturnType<typeof setImmediate> | ReturnType<typeof setTimeout>,
+  ) => {
+    clearTimeout(id as ReturnType<typeof setTimeout>);
+  }) as typeof clearImmediate;
 }
 
 jest.mock('expo-web-browser', () => ({
