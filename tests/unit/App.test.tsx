@@ -54,8 +54,8 @@ describe('App', () => {
     });
     mockCreateSession.mockResolvedValue(sampleSession);
 
-    const { getByText } = render(<App />);
+    const { getAllByText } = render(<App />);
 
-    await waitFor(() => expect(getByText('Home')).toBeTruthy());
+    await waitFor(() => expect(getAllByText('Home').length).toBeGreaterThan(0));
   });
 });

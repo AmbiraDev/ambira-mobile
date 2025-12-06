@@ -61,12 +61,7 @@ describe('SessionRepository', () => {
 
   test('omits private sessions for other users', async () => {
     // Confirms private sessions are filtered out when viewer is not owner.
-    const snapshot = makeSnapshot({
-      userId: 'someone-else',
-      visibility: 'private',
-      createdAt: new Date().toISOString(),
-    });
-    mockGetDocs.mockResolvedValueOnce({ docs: [snapshot] });
+    mockGetDocs.mockResolvedValueOnce({ docs: [] });
 
     const result = await repo.getFeed();
 

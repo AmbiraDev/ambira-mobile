@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text } from 'react-native';
 import { fireEvent, render } from '@testing-library/react-native';
 
 import { HomeScreen } from '@/screens/HomeScreen';
@@ -8,6 +9,13 @@ const mockUseFeed = jest.fn();
 
 jest.mock('@/hooks/useFeed', () => ({
   useFeed: (...args: unknown[]) => mockUseFeed(...args),
+}));
+
+jest.mock('@/components/SessionCard', () => ({
+  SessionCard: ({ session, onPress }: { session: typeof import('../../fixtures/data').sampleSession; onPress: () => void }) => {
+    const { Text } = require('react-native');
+    return <Text onPress={onPress}>{session.title}</Text>;
+  },
 }));
 
 describe('HomeScreen', () => {

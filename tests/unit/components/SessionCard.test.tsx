@@ -5,15 +5,20 @@ import { fireEvent, render } from '@testing-library/react-native';
 import { SessionCard } from '@/components/SessionCard';
 import { sampleSession, sampleUser } from '../../fixtures/data';
 
-jest.mock('react-native', () => {
-  const actual = jest.requireActual('react-native');
-  return {
-    ...actual,
-    Share: { share: jest.fn().mockResolvedValue({}) },
-  };
-});
+jest.mock('@/components/Avatar', () => ({
+  Avatar: () => <div />,
+  __esModule: true,
+}));
 
 describe('SessionCard', () => {
+  beforeEach(() => {
+    jest.spyOn(Share, 'share').mockResolvedValue({} as never);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   test('toggles support count and calls callback', () => {
     // Ensures tapping support updates count and emits toggle callback.
     const onSupportToggle = jest.fn();

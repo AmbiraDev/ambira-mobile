@@ -5,13 +5,14 @@ module.exports = {
   testMatch: ['**/tests/**/*.(test|spec).[jt]s?(x)'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@firebase/auth/dist/rn/index.js$': '<rootDir>/tests/setup/firebase-rn-mock.js',
   },
   setupFilesAfterEnv: [
     '@testing-library/jest-native/extend-expect',
     '<rootDir>/tests/setup/jest-setup.ts',
   ],
   transformIgnorePatterns: [
-    'node_modules/(?!(@react-native|react-native|expo(nent)?|@expo|expo-auth-session|@unimodules|unimodules|@react-native-async-storage)/)',
+    'node_modules/(?!(@react-native|react-native|expo(nent)?|@expo|expo-auth-session|expo-modules-core|expo-status-bar|@unimodules|unimodules|@react-native-async-storage)/)',
   ],
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/types/**'],
 };
