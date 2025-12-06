@@ -123,6 +123,7 @@ export default tseslint.config(
       '*.config.mjs',
       'metro.config.js',
       'jest.config.ts',
+      'jest.config.js',
     ],
   }
 );

@@ -1,6 +1,5 @@
-import type { Config } from 'jest';
-
-const config: Config = {
+/** @type {import('jest').Config} */
+module.exports = {
   preset: 'jest-expo',
   testEnvironment: 'jsdom',
   testMatch: ['**/tests/**/*.(test|spec).[jt]s?(x)'],
@@ -16,5 +15,3 @@ const config: Config = {
   ],
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/types/**'],
 };
-
-export default config;
