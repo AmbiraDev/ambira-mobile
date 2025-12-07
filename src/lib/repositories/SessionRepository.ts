@@ -182,7 +182,7 @@ export class SessionRepository {
     privateNotes?: string;
   }): Promise<Session> {
     const now = new Date();
-    const payload = {
+    const payload: Record<string, any> = {
       userId: input.userId,
       projectId: input.project ?? input.activityId,
       activityId: input.activityId,
@@ -190,15 +190,17 @@ export class SessionRepository {
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       title: input.title,
-      description: input.description,
       visibility: input.visibility,
       images: input.media ?? [],
       supportCount: 0,
       commentCount: 0,
       allowComments: true,
-      privateNotes: input.privateNotes,
-      howFelt: input.feeling,
     };
+
+    // Only add optional fields if they have values
+    if (input.description) payload.description = input.description;
+    if (input.privateNotes) payload.privateNotes = input.privateNotes;
+    if (input.feeling) payload.howFelt = input.feeling;
 
     const docRef = await addDoc(collection(db, COLLECTION), payload);
     return {
