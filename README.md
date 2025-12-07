@@ -3,7 +3,7 @@ Ambira is a social media application on which users can track and share their pr
 
 ## Project structure
 
-The repository now contains only the Expo mobile app, organised for long-term scaling.
+The repository contains the Expo mobile app, organised for long-term scaling.
 
 ```
 app.json            # Expo project configuration
@@ -26,17 +26,17 @@ TypeScript is configured with a `@/` path alias that points to `src/`, enabling 
 
 ## Local development
 
-`Node.js 20` (LTS) and `npm` are required. Expo CLI is installed automatically via `npx` when the scripts below are executed.
+Expo Go does not support the full functionality of Ambira, so you will initialize a development build for local testing.
 
-```bash
-npm install         # install dependencies
-npm run start       # open Expo Dev Tools
+### Development builds (EAS dev client)
+
+For work that depends on native changes, use the EAS `development` profile (see `eas.json`) to build a dev client per platform:
+
+```
+npx eas build --profile development --platform ios      # simulator .app
+npx expo start --dev-client                              # start bundler for the dev client
 ```
 
-From Expo Dev Tools you can open an iOS simulator, Android emulator, or run the app in the browser.
+Install the built artifact on your simulator/emulator, then launch the installed dev client to load the app.
 
 ### Available scripts
-
-- `npm run ios` – launch Expo and boot the iOS Simulator.
-- `npm run android` – launch Expo and boot the Android emulator.
-- `npm run web` – open the Expo web preview (useful for quick UI checks).

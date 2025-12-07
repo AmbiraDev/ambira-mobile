@@ -13,7 +13,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ambira.mobile",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -25,6 +29,25 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "firebase": {
+        "apiKey": "AIzaSyA-7R6B59zooCoNu7odOtqCgOny0A0JQuU",
+        "authDomain": "strava-but-productive.firebaseapp.com",
+        "projectId": "strava-but-productive",
+        "storageBucket": "strava-but-productive.firebasestorage.app",
+        "messagingSenderId": "374690007345",
+        "appId": "1:374690007345:web:7f704b27b371eed5a48810",
+        "measurementId": "G-CS97PM6G6H"
+      },
+      "google": {
+        "iosClientId": "374690007345-c0libfp2q2t5ih9au7niuqd9ubn8ht5b.apps.googleusercontent.com",
+        "expoClientId": "374690007345-qudlsprm6gkmsa3pp7mj54rfvlr4nd6e.apps.googleusercontent.com"
+      },
+      "eas": {
+        "projectId": "cba19f00-180b-4e3e-8c80-44f4de7fed7d"
+      }
+    },
+    "owner": "ambira"
   }
 }
