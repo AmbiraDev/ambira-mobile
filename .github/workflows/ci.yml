@@ -2,182 +2,83 @@ name: CI
 
 on:
   pull_request:
-    types: 
-      - opened
-      - synchronize
-      - reopened
-      - closed
-    branches:
-      - '**'
+    branches: ['**']
   push:
-    branches:
-      - '**'
+    branches: ['**']
   workflow_dispatch:
-  release:
-    types:
-      - created
-      - edited
+
+env:
+  NODE_VERSION: 20
 
 jobs:
-  # Install dependencies once and cache for all jobs
-  install:
-    name: Install Dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Cache node_modules
-        id: cache-node-modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-
-      - name: Install dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: npm ci
-
-  # Run lint in parallel
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    needs: install
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
 
-      - name: Restore node_modules cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-
-      - name: Run linting
-        run: npm run lint
-
-  # Run type-check in parallel
   type-check:
     name: Type Check
     runs-on: ubuntu-latest
-    needs: install
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run type-check
 
-      - name: Restore node_modules cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-
-      - name: Run type check
-        run: npm run type-check
-
-  test:
+  unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
-    needs: install
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Restore node_modules cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-
-      - name: Run unit tests
-        run: npm test -- --runInBand
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm test -- --runInBand
 
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
-    needs: install
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Restore node_modules cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-
-      - name: Run integration tests
-        run: npm run test:integration
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run test:integration
 
   e2e-detox:
     name: E2E (Detox)
     runs-on: macos-13
-    needs: install
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
       - name: Generate iOS project (Expo prebuild)
         run: npx expo prebuild --platform ios --non-interactive --skip-dependency-update react-native
-
       - name: Install iOS pods
         run: |
           cd ios
           pod install
           cd ..
-
       - name: Install applesimutils
         run: brew tap wix/brew && brew install applesimutils
-
       - name: Run Detox (iOS Simulator)
         env:
           DETOX_DISABLE_POSTINSTALL: 1
@@ -185,35 +86,22 @@ jobs:
           npm run e2e:build:ios
           npm run e2e:test:ios
 
-  # EAS Build for iOS Simulator (only on main branch or releases)
   build-ios-simulator:
-    name: Build iOS Simulator
+    name: Build iOS Simulator (EAS)
     runs-on: ubuntu-latest
     needs: [lint, type-check]
-    if: github.ref == 'refs/heads/main' || github.event_name == 'release' || github.event_name == 'pull_request'
+    if: (github.ref == 'refs/heads/main' || github.event_name == 'release') && env.EXPO_TOKEN != ''
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Restore node_modules cache
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-
       - name: Build iOS Simulator
         run: eas build --platform ios --profile preview --non-interactive
