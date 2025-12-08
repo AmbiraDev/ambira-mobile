@@ -152,7 +152,7 @@ jobs:
     name: E2E (Detox)
     runs-on: macos-13
     needs: install
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

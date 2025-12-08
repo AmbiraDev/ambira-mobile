@@ -3,9 +3,12 @@
  * Update binaryPath/build commands to match your native build outputs.
  */
 module.exports = {
-  testRunner: 'jest',
-  runnerConfig: 'e2e/jest.config.js',
-  specs: 'e2e/**/*.e2e.js',
+  testRunner: {
+    type: 'jest',
+    jest: {
+      config: 'e2e/jest.config.js',
+    },
+  },
   behavior: {
     init: {
       exposeGlobals: true,
