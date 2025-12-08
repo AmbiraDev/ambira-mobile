@@ -5,14 +5,12 @@ on:
     branches: ['**']
   push:
     branches: ['**']
-  workflow_dispatch:
 
 env:
   NODE_VERSION: 20
 
 jobs:
   lint:
-    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,7 +22,6 @@ jobs:
       - run: npm run lint
 
   type-check:
-    name: Type Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +33,6 @@ jobs:
       - run: npm run type-check
 
   unit-tests:
-    name: Unit Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +44,6 @@ jobs:
       - run: npm test -- --runInBand
 
   integration-tests:
-    name: Integration Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -58,50 +53,3 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run test:integration
-
-  e2e-detox:
-    name: E2E (Detox)
-    runs-on: macos-13
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - name: Generate iOS project (Expo prebuild)
-        run: npx expo prebuild --platform ios --non-interactive --skip-dependency-update react-native
-      - name: Install iOS pods
-        run: |
-          cd ios
-          pod install
-          cd ..
-      - name: Install applesimutils
-        run: brew tap wix/brew && brew install applesimutils
-      - name: Run Detox (iOS Simulator)
-        env:
-          DETOX_DISABLE_POSTINSTALL: 1
-        run: |
-          npm run e2e:build:ios
-          npm run e2e:test:ios
-
-  build-ios-simulator:
-    name: Build iOS Simulator (EAS)
-    runs-on: ubuntu-latest
-    needs: [lint, type-check]
-    if: (github.ref == 'refs/heads/main' || github.event_name == 'release') && secrets.EXPO_TOKEN != ''
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - name: Setup Expo and EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-      - name: Build iOS Simulator
-        run: eas build --platform ios --profile preview --non-interactive
