@@ -124,6 +124,7 @@ export default tseslint.config(
       'metro.config.js',
       'jest.config.ts',
       'jest.config.js',
+      'e2e/**',
     ],
   }
 );

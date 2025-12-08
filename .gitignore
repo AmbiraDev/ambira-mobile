@@ -34,3 +34,7 @@ temp/
 # Coverage / build
 coverage/
 build/
+
+# Detox artifacts
+artifacts/
+.detoxrc.json

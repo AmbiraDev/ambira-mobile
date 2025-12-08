@@ -28,6 +28,17 @@ const mockProfileValue = {
 };
 
 const mockCreateSession = jest.fn();
+const sampleProfile = {
+  id: 'user-1',
+  name: 'Pat',
+  handle: 'pat',
+  followers: 0,
+  following: 0,
+  totalHours: 0,
+  totalSessions: 0,
+  streakDays: 0,
+  isSelf: true,
+};
 
 jest.mock('@/providers/AuthProvider', () => {
   const React = require('react');
@@ -185,6 +196,8 @@ describe('App integration', () => {
     mockAuthState.user = null;
     mockAuthState.loading = false;
     mockAuthState.signUpWithEmail.mockResolvedValue(undefined);
+    mockAuthState.signInWithEmail.mockResolvedValue(undefined);
+    mockAuthState.signInWithGoogle = undefined;
     mockProfileValue.profile = null;
     mockProfileValue.loading = false;
   });
@@ -210,20 +223,35 @@ describe('App integration', () => {
     );
   });
 
+  test('logs in existing user via email', async () => {
+    // Checks welcome → login form triggers signInWithEmail.
+    const { getByText, getByPlaceholderText } = render(<App />);
+
+    fireEvent.press(getByText('Sign in'));
+    fireEvent.changeText(getByPlaceholderText('Enter your email'), 'user@example.com');
+    fireEvent.changeText(getByPlaceholderText('Enter your password'), 'pw123');
+    fireEvent.press(getByText('Sign In'));
+
+    await waitFor(() =>
+      expect(mockAuthState.signInWithEmail).toHaveBeenCalledWith('user@example.com', 'pw123'),
+    );
+  });
+
+  test('runs Google signup path when available', async () => {
+    // Ensures Google button calls provided signInWithGoogle handler.
+    mockAuthState.signInWithGoogle = jest.fn().mockResolvedValue(undefined);
+    const { getByText } = render(<App />);
+
+    fireEvent.press(getByText('Sign up free'));
+    fireEvent.press(getByText('Sign Up With Google'));
+
+    await waitFor(() => expect(mockAuthState.signInWithGoogle).toHaveBeenCalled());
+  });
+
   test('navigates authed users across tabs and saves a session', async () => {
     // Ensures bottom nav toggles timer → review and saving shows detail screen.
     mockAuthState.user = { uid: 'user-1', displayName: 'Pat', email: 'pat@example.com' };
-    mockProfileValue.profile = {
-      id: 'user-1',
-      name: 'Pat',
-      handle: 'pat',
-      followers: 0,
-      following: 0,
-      totalHours: 0,
-      totalSessions: 0,
-      streakDays: 0,
-      isSelf: true,
-    };
+    mockProfileValue.profile = sampleProfile;
     mockCreateSession.mockResolvedValue({
       id: 'session-123',
       userId: 'user-1',
@@ -254,5 +282,38 @@ describe('App integration', () => {
       );
       expect(getByText('Session Detail: Saved Session')).toBeTruthy();
     });
+  });
+
+  test('opens session from home into detail view', async () => {
+    // Confirms tapping a feed item sets viewingSession and shows detail screen.
+    mockAuthState.user = { uid: 'user-1' };
+    mockProfileValue.profile = sampleProfile;
+
+    const { getByText } = render(<App />);
+    fireEvent.press(getByText('Open Session'));
+
+    await waitFor(() => expect(getByText('Session Detail: Feed')).toBeTruthy());
+  });
+
+  test('routes to profile from home action', async () => {
+    // Verifies callbacks from home navigate to profile tab.
+    mockAuthState.user = { uid: 'user-1' };
+    mockProfileValue.profile = sampleProfile;
+
+    const { getByText } = render(<App />);
+
+    fireEvent.press(getByText('Open Profile'));
+    await waitFor(() => expect(getByText('Profile Screen')).toBeTruthy());
+  });
+
+  test('routes to notifications from home action', async () => {
+    // Verifies callbacks from home navigate to notifications tab.
+    mockAuthState.user = { uid: 'user-1' };
+    mockProfileValue.profile = sampleProfile;
+
+    const { getByText } = render(<App />);
+
+    fireEvent.press(getByText('Open Notifications'));
+    await waitFor(() => expect(getByText('Notifications Screen')).toBeTruthy());
   });
 });
