@@ -81,11 +81,11 @@ export function ReviewScreen({
       };
       onSave(sessionData);
     } catch (error) {
-        console.error('Error saving session:', error);
-        Alert.alert('Error', 'Failed to save session. Please try again.');
-        setSaving(false);
-      }
-    };
+      console.error('Error saving session:', error);
+      Alert.alert('Error', 'Failed to save session. Please try again.');
+      setSaving(false);
+    }
+  };
 
   const renderVisibilitySelector = () => (
     <View style={styles.section}>
@@ -201,7 +201,11 @@ export function ReviewScreen({
             <TouchableOpacity style={styles.destructiveButton} onPress={onDiscard}>
               <Text style={styles.destructiveButtonLabel}>Discard Session</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.primaryButton, saving && styles.primaryButtonDisabled]} onPress={handleSavePress} disabled={saving}>
+            <TouchableOpacity
+              style={[styles.primaryButton, saving && styles.primaryButtonDisabled]}
+              onPress={handleSavePress}
+              disabled={saving}
+            >
               <Text style={styles.primaryButtonLabel}>{saving ? 'Saving...' : 'Save Session'}</Text>
             </TouchableOpacity>
           </View>

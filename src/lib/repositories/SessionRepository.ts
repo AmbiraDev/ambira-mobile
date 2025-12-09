@@ -182,7 +182,7 @@ export class SessionRepository {
     privateNotes?: string;
   }): Promise<Session> {
     const now = new Date();
-    const payload: Record<string, any> = {
+    const payload: Record<string, unknown> = {
       userId: input.userId,
       projectId: input.project ?? input.activityId,
       activityId: input.activityId,

@@ -31,7 +31,7 @@ function AppContent(): React.JSX.Element {
   const [viewingSession, setViewingSession] = React.useState<Session | null>(null);
   const [profileUserId, setProfileUserId] = React.useState<string | null>(null);
   const [reviewDraft, setReviewDraft] = React.useState<ReviewDraft | null>(null);
-  const [defaultVisibility, setDefaultVisibility] = React.useState<Visibility>('everyone');
+  const [defaultVisibility] = React.useState<Visibility>('everyone');
   const [feedRefreshToken, setFeedRefreshToken] = React.useState<number>(0);
   const [authError, setAuthError] = React.useState<string | null>(null);
   const [authBusy, setAuthBusy] = React.useState<boolean>(false);
@@ -103,7 +103,7 @@ function AppContent(): React.JSX.Element {
   const handleSaveSession = async (partial: Partial<Session>) => {
     if (!user?.uid) return;
     try {
-      const sessionData: Record<string, any> = {
+      const sessionData: Record<string, unknown> = {
         userId: user.uid,
         title: partial.title ?? 'Session',
         activityId: partial.activityId ?? DEFAULT_ACTIVITIES[0].id,
