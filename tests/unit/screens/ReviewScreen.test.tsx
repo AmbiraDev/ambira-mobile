@@ -1,7 +1,15 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { Animated } from 'react-native';
 
 import { ReviewScreen } from '@/screens/ReviewScreen';
+
+// Mock Animated timing to prevent animation errors in tests
+jest.spyOn(Animated, 'timing').mockImplementation(() => ({
+  start: jest.fn(),
+  stop: jest.fn(),
+  reset: jest.fn(),
+}));
 
 const baseDraft = {
   title: 'Draft title',
@@ -13,9 +21,9 @@ const baseDraft = {
 };
 
 describe('ReviewScreen', () => {
-  test('saves with fallback title and updated visibility', () => {
+  test('saves with fallback title and updated visibility', async () => {
     // Ensures save uses default title when input is empty and respects visibility change.
-    const onSave = jest.fn();
+    const onSave = jest.fn().mockResolvedValue(undefined);
     const { getByText, getByPlaceholderText } = render(
       <ReviewScreen draft={baseDraft} onSave={onSave} onDiscard={jest.fn()} />,
     );
@@ -24,9 +32,11 @@ describe('ReviewScreen', () => {
     fireEvent.press(getByText('Followers'));
     fireEvent.press(getByText('Save Session'));
 
-    expect(onSave).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Session', visibility: 'followers' }),
-    );
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'Session', visibility: 'followers' }),
+      );
+    });
   });
 
   test('toggles photo list on add/remove', () => {

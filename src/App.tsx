@@ -31,7 +31,7 @@ function AppContent(): React.JSX.Element {
   const [viewingSession, setViewingSession] = React.useState<Session | null>(null);
   const [profileUserId, setProfileUserId] = React.useState<string | null>(null);
   const [reviewDraft, setReviewDraft] = React.useState<ReviewDraft | null>(null);
-  const [defaultVisibility, setDefaultVisibility] = React.useState<Visibility>('everyone');
+  const [defaultVisibility] = React.useState<Visibility>('everyone');
   const [feedRefreshToken, setFeedRefreshToken] = React.useState<number>(0);
   const [authError, setAuthError] = React.useState<string | null>(null);
   const [authBusy, setAuthBusy] = React.useState<boolean>(false);
@@ -102,24 +102,31 @@ function AppContent(): React.JSX.Element {
 
   const handleSaveSession = async (partial: Partial<Session>) => {
     if (!user?.uid) return;
-    const newSession = await sessionRepo.create({
-      userId: user.uid,
-      title: partial.title ?? 'Session',
-      description: partial.description,
-      activityId: partial.activityId ?? DEFAULT_ACTIVITIES[0].id,
-      project: partial.project,
-      durationMinutes: partial.durationMinutes ?? 25,
-      visibility: partial.visibility ?? 'everyone',
-      media: partial.media ?? [],
-      feeling: partial.feeling,
-      privateNotes: partial.privateNotes,
-    });
-    setViewingSession(newSession);
-    setActiveTab('home');
-    setReviewDraft(null);
-    setDefaultVisibility(newSession.visibility);
-    setFeedRefreshToken(Date.now());
-    refetchCurrentProfile();
+    try {
+      const sessionData: Record<string, unknown> = {
+        userId: user.uid,
+        title: partial.title ?? 'Session',
+        activityId: partial.activityId ?? DEFAULT_ACTIVITIES[0].id,
+        durationMinutes: partial.durationMinutes ?? 25,
+        visibility: partial.visibility ?? 'everyone',
+        media: partial.media ?? [],
+      };
+
+      // Only add optional fields if they have values
+      if (partial.description) sessionData.description = partial.description;
+      if (partial.project) sessionData.project = partial.project;
+      if (partial.feeling) sessionData.feeling = partial.feeling;
+      if (partial.privateNotes) sessionData.privateNotes = partial.privateNotes;
+
+      await sessionRepo.create(sessionData as Omit<Session, 'id'>);
+      setReviewDraft(null);
+      setActiveTab('home');
+      setFeedRefreshToken(Date.now());
+      await refetchCurrentProfile();
+    } catch (error) {
+      console.error('Failed to save session:', error);
+      throw error; // Re-throw so ReviewScreen can show the error
+    }
   };
 
   const authedBody = () => (

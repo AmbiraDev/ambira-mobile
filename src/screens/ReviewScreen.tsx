@@ -1,7 +1,7 @@
 import React from 'react';
 import { BookOpen, Dumbbell, Hammer, Palette } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
-import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { MobileHeader } from '@/components/MobileHeader';
 import { DEFAULT_ACTIVITIES } from '@/data/activities';
@@ -43,6 +43,7 @@ export function ReviewScreen({
   onDiscard,
   onSave,
 }: ReviewScreenProps): React.JSX.Element {
+  const [saving, setSaving] = React.useState(false);
   const clampDuration = (value: number) => value;
   const [title, setTitle] = React.useState(draft.title || 'Untitled session');
   const [description, setDescription] = React.useState(draft.description ?? '');
@@ -64,16 +65,26 @@ export function ReviewScreen({
     ]);
   };
 
-  const handleSavePress = () => {
-    onSave({
-      title: title || 'Session',
-      description,
-      activityId,
-      durationMinutes,
-      visibility,
-      media: photos,
-      createdAt: new Date().toISOString(),
-    });
+  const handleSavePress = async () => {
+    if (saving) return;
+
+    setSaving(true);
+    try {
+      const sessionData: Partial<Session> = {
+        title: title || 'Session',
+        description,
+        activityId,
+        durationMinutes,
+        visibility,
+        media: photos,
+        createdAt: new Date().toISOString(),
+      };
+      onSave(sessionData);
+    } catch (error) {
+      console.error('Error saving session:', error);
+      Alert.alert('Error', 'Failed to save session. Please try again.');
+      setSaving(false);
+    }
   };
 
   const renderVisibilitySelector = () => (
@@ -104,7 +115,6 @@ export function ReviewScreen({
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        scrollEnabled={false}
       >
         <View style={styles.container}>
           <View style={styles.section}>
@@ -191,8 +201,12 @@ export function ReviewScreen({
             <TouchableOpacity style={styles.destructiveButton} onPress={onDiscard}>
               <Text style={styles.destructiveButtonLabel}>Discard Session</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.primaryButton} onPress={handleSavePress}>
-              <Text style={styles.primaryButtonLabel}>Save Session</Text>
+            <TouchableOpacity
+              style={[styles.primaryButton, saving && styles.primaryButtonDisabled]}
+              onPress={handleSavePress}
+              disabled={saving}
+            >
+              <Text style={styles.primaryButtonLabel}>{saving ? 'Saving...' : 'Save Session'}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -327,5 +341,8 @@ const styles = StyleSheet.create({
   },
   bottomSpace: {
     height: 96,
+  },
+  primaryButtonDisabled: {
+    opacity: 0.6,
   },
 });
