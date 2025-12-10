@@ -249,7 +249,7 @@ describe('App integration', () => {
   });
 
   test('navigates authed users across tabs and saves a session', async () => {
-    // Ensures bottom nav toggles timer → review and saving shows detail screen.
+    // Ensures bottom nav toggles timer → review and saving returns to home.
     mockAuthState.user = { uid: 'user-1', displayName: 'Pat', email: 'pat@example.com' };
     mockProfileValue.profile = sampleProfile;
     mockCreateSession.mockResolvedValue({
@@ -280,8 +280,14 @@ describe('App integration', () => {
       expect(mockCreateSession).toHaveBeenCalledWith(
         expect.objectContaining({ userId: 'user-1', title: 'Draft Title' }),
       );
-      expect(getByText('Session Detail: Saved Session')).toBeTruthy();
     });
+
+    // After saving, should return to home screen (not session detail)
+    await waitFor(() => {
+      expect(getByText('Home Screen')).toBeTruthy();
+    });
+
+    expect(mockProfileValue.refetch).toHaveBeenCalled();
   });
 
   test('opens session from home into detail view', async () => {
