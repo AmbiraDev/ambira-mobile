@@ -29,10 +29,14 @@ type SessionCardProps = {
 const formatDuration = (minutes: number): string => {
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
-  if (hours > 0) {
-    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+
+  if (hours > 0 && mins > 0) {
+    return `${hours}h ${mins}m`;
+  } else if (hours > 0) {
+    return `${hours}h`;
+  } else {
+    return `${mins}m`;
   }
-  return `${mins}m`;
 };
 
 const timeAgo = (dateString: string): string => {
@@ -112,6 +116,16 @@ export function SessionCard({
 
       <Text style={styles.title}>{session.title}</Text>
       {session.description ? <Text style={styles.description}>{session.description}</Text> : null}
+      
+      <View style={styles.metaRow}>
+        <Text style={styles.duration}>Time: {formatDuration(session.durationMinutes)}</Text>
+        {_activity ? (
+          <Text style={[styles.duration, styles.activityCenter]}>
+            Activity: {_activity.name}
+          </Text>
+        ) : null}
+        <View style={styles.spacer} />
+      </View>
 
       {session.media && session.media.length > 0 ? (
         <ScrollView
@@ -238,5 +252,43 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontWeight: '700',
     fontFamily: 'DM Sans',
+  },
+  activityTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: colors.cardBorder,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 6,
+  },
+  activityEmoji: {
+    fontSize: 14,
+  },
+  activityLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.textDark,
+    fontFamily: 'DM Sans',
+  },
+  duration: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.brandPrimary,
+    fontFamily: 'DM Sans',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  activityCenter: {
+    position: 'absolute',
+    left: '50%',
+    transform: [{ translateX: -50 }],
+  },
+  spacer: {
+    width: 1,
   },
 });

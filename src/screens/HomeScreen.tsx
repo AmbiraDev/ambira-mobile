@@ -104,15 +104,19 @@ export function HomeScreen({
 
     return (
       <View style={styles.cardStack}>
-        {sessions.map((session) => (
-          <SessionCard
-            key={session.id}
-            session={session}
-            user={usersById[session.userId]}
-            onPress={() => onOpenSession(session)}
-            onUserPress={onOpenProfile}
-          />
-        ))}
+        {sessions.map((session) => {
+          const activity = DEFAULT_ACTIVITIES.find((a) => a.id === session.activityId);
+          return (
+            <SessionCard
+              key={session.id}
+              session={session}
+              user={usersById[session.userId]}
+              activity={activity}
+              onPress={() => onOpenSession(session)}
+              onUserPress={onOpenProfile}
+            />
+          );
+        })}
       </View>
     );
   };
