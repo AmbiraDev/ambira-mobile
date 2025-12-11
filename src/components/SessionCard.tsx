@@ -116,7 +116,7 @@ export function SessionCard({
 
       <Text style={styles.title}>{session.title}</Text>
       {session.description ? <Text style={styles.description}>{session.description}</Text> : null}
-      
+
       <View style={styles.metaRow}>
         <Text style={styles.duration}>Time: {formatDuration(session.durationMinutes)}</Text>
         {_activity ? (
@@ -251,25 +251,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.textMuted,
     fontWeight: '700',
-    fontFamily: 'DM Sans',
-  },
-  activityTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: colors.cardBorder,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    gap: 6,
-  },
-  activityEmoji: {
-    fontSize: 14,
-  },
-  activityLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.textDark,
     fontFamily: 'DM Sans',
   },
   duration: {
